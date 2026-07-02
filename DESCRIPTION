@@ -1,0 +1,35 @@
+Package: svySE
+Type: Package
+Title: Sampling Error Estimation for Complex Survey Indicators
+Version: 0.1.0
+Authors@R:
+    person(
+        given = "Luis",
+        family = "Burgos",
+        email = "lburgoss1996@gmail.com",
+        role = c("aut", "cre")
+    )
+Description: Tools for estimating sampling errors of indicators from complex
+    survey designs. The package supports weighted totals, proportions,
+    standard errors, confidence intervals, coefficients of variation,
+    design effects, unweighted counts, grouped estimates, domain estimates,
+    configurable survey settings, and customizable Excel exports.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Language: en-US
+Depends:
+    R (>= 4.2.0)
+Imports:
+    survey,
+    openxlsx,
+    stats
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+Config/testthat/edition: 3
+URL: https://github.com/lburgoss1996/svySE
+BugReports: https://github.com/lburgoss1996/svySE/issues
+Config/roxygen2/version: 8.0.0

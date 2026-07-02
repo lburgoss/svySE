@@ -1,0 +1,115 @@
+---
+title: "Basic Workflow with svySE"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basic Workflow with svySE}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+`svySE` provides a workflow for estimating sampling errors for complex survey indicators.
+
+It is designed for binary or categorical indicators and supports weighted estimates, percentages, standard errors, confidence intervals, coefficients of variation, design effects, unweighted counts, grouped estimates, optional division variables, and Excel exports.
+
+# Example data
+
+```{r}
+library(svySE)
+
+set.seed(123)
+
+df <- data.frame(
+  dept = rep(c("A", "B", "C"), each = 50),
+  strata = rep(c("A", "B", "C"), each = 50),
+  service = rep(c("S1", "S2"), length.out = 150),
+  weight = runif(150, 10, 50),
+  ind_1 = sample(c(0, 1), 150, replace = TRUE)
+)
+
+head(df)
+```
+
+# Configuration
+
+```{r}
+cfg <- svySE_cfg(
+  estimator = "prop",
+  target = 1,
+  valid_values = c(0, 1),
+  lonely_psu = "adjust",
+  truncate_lower_ci = TRUE
+)
+
+cfg
+```
+
+# Sampling error calculation
+
+```{r}
+res <- svySE_calc(
+  data = df,
+  indicators = "ind_1",
+  group_vars = "dept",
+  group_labels = "Department",
+  strata = "strata",
+  weight = "weight",
+  cfg = cfg,
+  verbose = FALSE
+)
+
+res
+```
+
+# Inspect results
+
+```{r}
+res$results$ind_1$error$TOTAL
+```
+
+# Calculation with division variable
+
+```{r}
+res_div <- svySE_calc(
+  data = df,
+  indicators = "ind_1",
+  group_vars = "dept",
+  group_labels = "Department",
+  strata = "strata",
+  weight = "weight",
+  division = "service",
+  div_weight = "weight",
+  cfg = cfg,
+  verbose = FALSE
+)
+
+names(res_div$results$ind_1$error)
+```
+
+# Export to Excel
+
+The following example writes files to a temporary directory.
+
+```{r}
+file_err <- tempfile(fileext = ".xlsx")
+file_tab <- tempfile(fileext = ".xlsx")
+
+svySE_xlsx(
+  x = res,
+  file_err = file_err,
+  file_tab = file_tab,
+  cols_err = svySE_cols_err("full"),
+  cols_tab = svySE_cols_tab("full")
+)
+
+file.exists(file_err)
+file.exists(file_tab)
+```
