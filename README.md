@@ -1,5 +1,9 @@
 # svySE
 
+[![R-CMD-check](https://github.com/lburgoss/svySE/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lburgoss/svySE/actions/workflows/R-CMD-check.yaml)
+
+Sampling Errors for Complex Survey Indicators.
+
 `svySE` is an R package for estimating sampling errors for complex survey indicators.
 
 It supports weighted estimates, percentages, standard errors, confidence intervals, coefficients of variation, design effects, unweighted counts, grouped estimates, optional division variables, and customizable Excel exports.
