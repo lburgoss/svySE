@@ -200,7 +200,7 @@ Future releases will incorporate additional estimators for complex survey analys
 
 **Luis Burgos**
 
-Statistician • Master's degree in Computer Science • RENACYT Researcher (Peru)
+Statistician • RENACYT Researcher (Peru)
 
 Sampling Specialist
 
