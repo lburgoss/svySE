@@ -1,6 +1,6 @@
 Package: svySE
 Type: Package
-Title: Sampling Error Estimation for Complex Survey Indicators
+Title: Sampling Error Estimation for Complex Surveys
 Version: 0.1.0
 Authors@R:
     person(
@@ -30,6 +30,6 @@ Suggests:
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 Config/testthat/edition: 3
-URL: https://github.com/lburgoss1996/svySE
-BugReports: https://github.com/lburgoss1996/svySE/issues
+URL: https://github.com/lburgoss/svySE
+BugReports: https://github.com/lburgoss/svySE/issues
 Config/roxygen2/version: 8.0.0

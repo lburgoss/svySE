@@ -1,17 +1,16 @@
 citHeader("To cite svySE in publications use:")
 
-citEntry(
-  entry = "Manual",
-  title = "svySE: Sampling Errors for Complex Survey Indicators",
+bibentry(
+  bibtype = "Manual",
+  title = "svySE: Sampling Error Estimation for Complex Surveys",
   author = person("Luis", "Burgos"),
-  year = format(Sys.Date(), "%Y"),
-  note = paste("R package version", meta$Version),
+  year = "2026",
+  note = "R package version 0.1.0",
   url = "https://github.com/lburgoss/svySE",
   textVersion = paste(
-    "Luis Burgos.",
-    sprintf("(%s).", format(Sys.Date(), "%Y")),
-    "svySE: Sampling Errors for Complex Survey Indicators.",
-    paste("R package version", meta$Version),
-    "Available at https://github.com/lburgoss/svySE"
+    "Burgos, L. (2026).",
+    "svySE: Sampling Error Estimation for Complex Surveys.",
+    "R package version 0.1.0.",
+    "https://github.com/lburgoss/svySE"
   )
 )
