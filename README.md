@@ -130,20 +130,15 @@ svySE_calc(
 
 # Workflow
 
-The `svySE` core architecture processes complex survey data through an isolated, three-stage sequential pipeline. This design establishes a strict separation of concerns, decoupling structural design configuration from variance estimation matrix arithmetic.
+The typical `svySE` workflow consists of three steps:
 
-```mermaid
-graph TD
-    %% Custom Styling for GitHub Theme Adaptability
-    classDef business fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
-    classDef engine fill:#0f172a,stroke:#64748b,stroke-width:1px,color:#94a3b8,font-family:monospace;
-    classDef arrow stroke:#64748b,stroke-width:2px;
+<p align="center">
+  <img src="man/figures/workflow.svg" width="780">
+</p>
 
-    Step1[<b>01. Environment Setup</b><br>Configure survey estimation]:::business --> |passes spec| Fn1[fn: svySE_cfg()]:::engine
-    Fn1 --> |validated object| Step2[<b>02. Statistical Engine</b><br>Calculate sampling errors]:::business
-    Step2 --> |triggers matrix math| Fn2[fn: svySE_calc()]:::engine
-    Fn2 --> |raw summary matrix| Step3[<b>03. Data Delivery</b><br>Export results]:::business
-    Step3 --> |stream write| Fn3[fn: svySE_xlsx()]:::engine
+1. Configure the survey estimation settings with `svySE_cfg()`.
+2. Calculate sampling errors with `svySE_calc()`.
+3. Export the results to Excel with `svySE_xlsx()`.
 
 ---
 
