@@ -133,7 +133,7 @@ svySE_calc(
 The typical `svySE` workflow consists of three steps:
 
 <p align="center">
-  <img src="man/figures/workflow.svg" width="780">
+  <img src="man/figures/workflow.png" width="780">
 </p>
 
 1. Configure the survey estimation settings with `svySE_cfg()`.
