@@ -17,7 +17,10 @@
 #' @param indicators Vector con los nombres de los indicadores.
 #' @param group_vars Variables de agrupacion.
 #' @param group_labels Etiquetas de las variables de agrupacion.
-#' @param strata Variable o variables de estrato.
+#' @param strata Variable or variables identifying strata. If `NULL`, the design
+#'   is treated as unstratified.
+#' @param cluster Variable or variables identifying primary sampling units or
+#'   clusters. If `NULL`, the design is treated as unclustered using `ids = ~1`.
 #' @param weight Variable de peso principal.
 #' @param division Variable de division opcional.
 #' @param div_weight Variable de peso opcional para las divisiones.
@@ -36,8 +39,9 @@ svySE_calc <- function(
     indicators,
     group_vars,
     group_labels = group_vars,
-    strata,
-    weight,
+    strata = NULL,
+    cluster = NULL,
+    weight = NULL,
     division = NULL,
     div_weight = NULL,
     cfg = svySE_cfg(),
@@ -77,8 +81,25 @@ svySE_calc <- function(
   svySE_chk_chr(indicators, "indicators")
   svySE_chk_chr(group_vars, "group_vars")
   svySE_chk_chr(group_labels, "group_labels")
-  svySE_chk_chr(strata, "strata")
   svySE_chk_chr(weight, "weight")
+  
+  # ---------------------------------------------------------------------------
+  # Validar strata solo si se especifica
+  # Validate strata only if specified
+  # ---------------------------------------------------------------------------
+  
+  if (!is.null(strata)) {
+    svySE_chk_chr(strata, "strata")
+  }
+  
+  # ---------------------------------------------------------------------------
+  # Validar cluster solo si se especifica
+  # Validate cluster only if specified
+  # ---------------------------------------------------------------------------
+  
+  if (!is.null(cluster)) {
+    svySE_chk_chr(cluster, "cluster")
+  }
   
   if (length(weight) != 1) {
     svySE_abort(
@@ -114,8 +135,15 @@ svySE_calc <- function(
   
   svySE_chk_vars(data, indicators, "indicators")
   svySE_chk_vars(data, group_vars, "group_vars")
-  svySE_chk_vars(data, strata, "strata")
   svySE_chk_vars(data, weight, "weight")
+  
+  if (!is.null(strata)) {
+    svySE_chk_vars(data, strata, "strata")
+  }
+  
+  if (!is.null(cluster)) {
+    svySE_chk_vars(data, cluster, "cluster")
+  }
   
   if (!is.null(division)) {
     svySE_chk_vars(data, division, "division")
@@ -158,10 +186,20 @@ svySE_calc <- function(
     )
   }
   
+  required_vars <- group_vars
+  
+  if (!is.null(strata)) {
+    required_vars <- c(required_vars, strata)
+  }
+  
+  if (!is.null(cluster)) {
+    required_vars <- c(required_vars, cluster)
+  }
+  
   svySE_chk_required_no_na(
     data = data,
-    vars = c(group_vars, strata),
-    context = "variables de grupo y estrato / group and strata variables"
+    vars = required_vars,
+    context = "variables de grupo, estrato y conglomerado / group, strata and cluster variables"
   )
   
   if (!is.null(division)) {
@@ -236,6 +274,7 @@ svySE_calc <- function(
             data = f$data,
             group_vars = group_vars,
             strata = strata,
+            cluster = cluster,
             weight = f$weight,
             indicator = ind,
             groups_master = groups_master,
@@ -264,7 +303,8 @@ svySE_calc <- function(
               indicator = ind,
               division = f$name,
               group_vars = group_vars,
-              strata = strata,
+              strata = if (is.null(strata)) "NULL" else strata,
+              cluster = if (is.null(cluster)) "NULL" else cluster,
               weight_used = f$weight,
               estimator = cfg$estimator,
               target = cfg$target,
@@ -291,7 +331,8 @@ svySE_calc <- function(
         vars = list(
           indicator = ind,
           group_vars = group_vars,
-          strata = strata,
+          strata = if (is.null(strata)) "NULL" else strata,
+          cluster = if (is.null(cluster)) "NULL" else cluster,
           weight = weight,
           division = if (is.null(division)) "NULL" else division,
           div_weight = if (is.null(div_weight)) "NULL" else div_weight,
@@ -314,6 +355,7 @@ svySE_calc <- function(
       group_vars = group_vars,
       group_labels = group_labels,
       strata = strata,
+      cluster = cluster,
       weight = weight,
       division = division,
       div_weight = div_weight,
@@ -338,6 +380,7 @@ svySE_err_one <- function(
     data,
     group_vars,
     strata,
+    cluster,
     weight,
     indicator,
     groups_master,
@@ -364,6 +407,7 @@ svySE_err_one <- function(
     svySE_design(
       data = data,
       strata = strata,
+      cluster = cluster,
       weight = weight
     ),
     error = function(e) {
@@ -371,11 +415,12 @@ svySE_err_one <- function(
         title = "No se pudo construir el diseno muestral / Could not build survey design.",
         details = "El error ocurrio al ejecutar `survey::svydesign()`.",
         vars = list(
-          strata = strata,
+          strata = if (is.null(strata)) "NULL" else strata,
+          cluster = if (is.null(cluster)) "NULL" else cluster,
           weight = weight,
           n_rows = nrow(data)
         ),
-        hint = "Verifica que el peso sea numerico, no negativo, no todo NA, y que la variable de estrato exista y no tenga valores perdidos.",
+        hint = "Verifica que el peso sea numerico, no negativo, no todo NA, y que las variables de estrato o conglomerado existan y no tengan valores perdidos.",
         parent = e
       )
     }
@@ -918,7 +963,8 @@ svySE_filters <- function(
 #' @keywords internal
 svySE_design <- function(
     data,
-    strata,
+    strata = NULL,
+    cluster = NULL,
     weight
 ) {
   
@@ -936,12 +982,84 @@ svySE_design <- function(
     weight = weight
   )
   
+  if (is.null(cluster)) {
+    ids_formula <- ~1
+  } else {
+    ids_formula <- stats::reformulate(cluster)
+  }
+  
+  if (is.null(strata)) {
+    strata_formula <- NULL
+  } else {
+    strata_formula <- stats::reformulate(strata)
+  }
+  
+  if (!is.null(strata) && !is.null(cluster)) {
+    svySE_chk_cluster_strata(
+      data = data,
+      strata = strata,
+      cluster = cluster
+    )
+  }
+  
   survey::svydesign(
-    ids = ~1,
-    strata = stats::reformulate(strata),
+    ids = ids_formula,
+    strata = strata_formula,
     weights = stats::reformulate(weight),
-    data = data
+    data = data,
+    nest = TRUE
   )
+}
+
+
+#' @keywords internal
+svySE_chk_cluster_strata <- function(
+    data,
+    strata,
+    cluster
+) {
+  
+  strata_id <- do.call(
+    paste,
+    c(data[strata], sep = " | ")
+  )
+  
+  cluster_id <- do.call(
+    paste,
+    c(data[cluster], sep = " | ")
+  )
+  
+  tmp <- unique(
+    data.frame(
+      .__svySE_strata_id__ = strata_id,
+      .__svySE_cluster_id__ = cluster_id,
+      stringsAsFactors = FALSE
+    )
+  )
+  
+  n_cluster <- stats::aggregate(
+    .__svySE_cluster_id__ ~ .__svySE_strata_id__,
+    data = tmp,
+    FUN = function(x) length(unique(x))
+  )
+  
+  names(n_cluster)[2] <- "n_cluster"
+  
+  lonely <- n_cluster[n_cluster$n_cluster < 2, , drop = FALSE]
+  
+  if (nrow(lonely) > 0) {
+    warning(
+      paste0(
+        "Some strata contain only one cluster. ",
+        "The result will depend on the `survey.lonely.psu` option defined in `svySE_cfg()`. ",
+        "Current option: ",
+        getOption("survey.lonely.psu")
+      ),
+      call. = FALSE
+    )
+  }
+  
+  invisible(TRUE)
 }
 
 
@@ -1591,7 +1709,8 @@ print.svySE_result <- function(x, ...) {
   cat("--------------------------------------------------\n")
   cat("Indicators :", paste(x$meta$indicators, collapse = ", "), "\n")
   cat("Groups     :", paste(x$meta$group_vars, collapse = ", "), "\n")
-  cat("Strata     :", paste(x$meta$strata, collapse = ", "), "\n")
+  cat("Strata     :", if (is.null(x$meta$strata)) "NULL" else paste(x$meta$strata, collapse = ", "), "\n")
+  cat("Cluster    :", if (is.null(x$meta$cluster)) "NULL" else paste(x$meta$cluster, collapse = ", "), "\n")
   cat("Weight     :", x$meta$weight, "\n")
   cat("Division   :", ifelse(is.null(x$meta$division), "NULL", x$meta$division), "\n")
   cat("Estimator  :", x$meta$cfg$estimator, "\n")

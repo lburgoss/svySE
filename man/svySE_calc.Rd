@@ -9,8 +9,9 @@ svySE_calc(
   indicators,
   group_vars,
   group_labels = group_vars,
-  strata,
-  weight,
+  strata = NULL,
+  cluster = NULL,
+  weight = NULL,
   division = NULL,
   div_weight = NULL,
   cfg = svySE_cfg(),
@@ -27,7 +28,11 @@ svySE_calc(
 
 \item{group_labels}{Etiquetas de las variables de agrupacion.}
 
-\item{strata}{Variable o variables de estrato.}
+\item{strata}{Variable or variables identifying strata. If \code{NULL}, the design
+is treated as unstratified.}
+
+\item{cluster}{Variable or variables identifying primary sampling units or
+clusters. If \code{NULL}, the design is treated as unclustered using \code{ids = ~1}.}
 
 \item{weight}{Variable de peso principal.}
 

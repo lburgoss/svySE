@@ -13,13 +13,13 @@
 
 The package provides a reproducible workflow for calculating weighted totals, proportions, standard errors, confidence intervals, coefficients of variation (CV), design effects (DEFF), unweighted sample sizes, grouped estimates, domain estimates, and customizable Excel reports.
 
-Built on top of the **survey** package, `svySE` simplifies the routine production of official survey indicators while preserving the methodological principles of design-based estimation.
+Built on top of the **survey** package, `svySE` simplifies the routine production of survey indicators while preserving the methodological principles of design-based estimation.
 
 ---
 
 # Why svySE?
 
-Many organizations repeatedly implement similar survey estimation procedures using custom scripts.
+Many institutions and research teams repeatedly implement similar survey estimation procedures using custom scripts.
 
 `svySE` was developed to standardize these procedures into a single workflow that is:
 
@@ -29,8 +29,9 @@ Many organizations repeatedly implement similar survey estimation procedures usi
 - Methodologically consistent
 - Suitable for official statistics
 - Suitable for academic research
+- Compatible with complex survey designs
 
-Although initially developed from practical experience in official statistics, the package is intended for any researcher or institution working with complex survey data.
+Although initially developed from practical experience in official statistics, the package is intended for any researcher, public institution, national statistical office, or survey practitioner working with complex survey data.
 
 ---
 
@@ -52,9 +53,13 @@ Although initially developed from practical experience in official statistics, t
 
 ✔ Unweighted sample sizes
 
+✔ Grouped estimation
+
 ✔ Domain estimation
 
-✔ Grouped estimation
+✔ Optional strata variables
+
+✔ Optional cluster variables
 
 ✔ Configurable survey settings
 
@@ -62,34 +67,84 @@ Although initially developed from practical experience in official statistics, t
 
 ---
 
+# Supported Survey Designs
+
+`svySE` supports different survey design structures depending on the information available in the dataset.
+
+| Design structure | `strata` | `cluster` |
+|------------------|----------|-----------|
+| Weight only | `NULL` | `NULL` |
+| Stratified design | variable name | `NULL` |
+| Clustered design | `NULL` | variable name |
+| Stratified clustered design | variable name | variable name |
+
+Examples:
+
+```r
+# Weight only
+svySE_calc(
+  data = df,
+  indicators = "ind_1",
+  group_vars = "dept",
+  strata = NULL,
+  cluster = NULL,
+  weight = "weight",
+  cfg = cfg
+)
+
+# Stratified design
+svySE_calc(
+  data = df,
+  indicators = "ind_1",
+  group_vars = "dept",
+  strata = "strata",
+  cluster = NULL,
+  weight = "weight",
+  cfg = cfg
+)
+
+# Clustered design
+svySE_calc(
+  data = df,
+  indicators = "ind_1",
+  group_vars = "dept",
+  strata = NULL,
+  cluster = "cluster",
+  weight = "weight",
+  cfg = cfg
+)
+
+# Stratified clustered design
+svySE_calc(
+  data = df,
+  indicators = "ind_1",
+  group_vars = "dept",
+  strata = "strata",
+  cluster = "cluster",
+  weight = "weight",
+  cfg = cfg
+)
+```
+
+---
+
 # Workflow
 
-The typical workflow consists of only three steps.
+The typical `svySE` workflow consists of three steps:
 
-```text
-Configure survey estimation
-        │
-        ▼
-   svySE_cfg()
-        │
-        ▼
-Calculate sampling errors
-        │
-        ▼
-  svySE_calc()
-        │
-        ▼
-Export results
-        │
-        ▼
-  svySE_xlsx()
-```
+<p align="center">
+  <img src="man/figures/workflow.png" width="780">
+</p>
+
+1. Configure the survey estimation settings with `svySE_cfg()`.
+2. Calculate sampling errors with `svySE_calc()`.
+3. Export the results to Excel with `svySE_xlsx()`.
 
 ---
 
 # Installation
 
-Development version
+Development version:
 
 ```r
 install.packages("remotes")
@@ -108,7 +163,8 @@ set.seed(123)
 
 df <- data.frame(
   dept = rep(c("A", "B", "C"), each = 50),
-  strata = rep(c("A", "B", "C"), each = 50),
+  strata = rep(c("S1", "S2", "S3"), each = 50),
+  cluster = rep(1:30, each = 5),
   weight = runif(150, 10, 50),
   ind_1 = sample(c(0, 1), 150, replace = TRUE)
 )
@@ -116,7 +172,7 @@ df <- data.frame(
 cfg <- svySE_cfg(
   estimator = "prop",
   target = 1,
-  valid_values = c(0,1),
+  valid_values = c(0, 1),
   lonely_psu = "adjust"
 )
 
@@ -126,6 +182,7 @@ res <- svySE_calc(
   group_vars = "dept",
   group_labels = "Department",
   strata = "strata",
+  cluster = "cluster",
   weight = "weight",
   cfg = cfg
 )
@@ -142,11 +199,11 @@ tmp_err <- tempfile(fileext = ".xlsx")
 tmp_tab <- tempfile(fileext = ".xlsx")
 
 svySE_xlsx(
-    x = res,
-    file_err = tmp_err,
-    file_tab = tmp_tab,
-    cols_err = svySE_cols_err("full"),
-    cols_tab = svySE_cols_tab("full")
+  x = res,
+  file_err = tmp_err,
+  file_tab = tmp_tab,
+  cols_err = svySE_cols_err("full"),
+  cols_tab = svySE_cols_tab("full")
 )
 ```
 
@@ -164,6 +221,24 @@ svySE_xlsx(
 
 ---
 
+# Output Tables
+
+`svySE` produces two main types of outputs:
+
+| Output | Description |
+|--------|-------------|
+| Error table | Weighted estimates, percentages, standard errors, confidence intervals, CV, DEFF, and unweighted counts |
+| Simple table | Unweighted frequencies and percentages for indicator categories |
+
+The exported Excel files can be customized by selecting the columns to include:
+
+```r
+svySE_cols_err("full")
+svySE_cols_tab("full")
+```
+
+---
+
 # Documentation
 
 The package includes:
@@ -171,7 +246,7 @@ The package includes:
 - Reference manual
 - Package vignettes
 - Function documentation
-- Examples
+- Reproducible examples
 - Unit tests
 
 Complete documentation is available directly in R:
@@ -180,7 +255,7 @@ Complete documentation is available directly in R:
 help(package = "svySE")
 ```
 
-or
+or:
 
 ```r
 browseVignettes("svySE")
@@ -192,7 +267,7 @@ browseVignettes("svySE")
 
 `svySE` is under active development.
 
-Future releases will incorporate additional estimators for complex survey analysis while maintaining compatibility with the **survey** package.
+Version `0.2.0` adds support for optional cluster variables and more flexible survey design structures. Future releases will incorporate additional estimators and reporting utilities while maintaining compatibility with the **survey** package.
 
 ---
 

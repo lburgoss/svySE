@@ -1,7 +1,7 @@
 Package: svySE
 Type: Package
 Title: Sampling Error Estimation for Complex Surveys
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person(
         given = "Luis",
@@ -13,7 +13,8 @@ Description: Tools for estimating sampling errors of indicators from complex
     survey designs. The package supports weighted totals, proportions,
     standard errors, confidence intervals, coefficients of variation,
     design effects, unweighted counts, grouped estimates, domain estimates,
-    configurable survey settings, and customizable Excel exports.
+    optional strata and cluster variables, configurable survey settings,
+    and customizable Excel exports.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US
