@@ -9,12 +9,12 @@ Authors@R:
         email = "lburgoss1996@gmail.com",
         role = c("aut", "cre")
     )
-Description: Tools for estimating sampling errors of indicators from complex
-    survey designs. The package supports weighted totals, proportions,
-    standard errors, confidence intervals, coefficients of variation,
-    design effects, unweighted counts, grouped estimates, domain estimates,
-    optional strata and cluster variables, configurable survey settings,
-    and customizable Excel exports.
+Description: Estimates sampling errors for indicators from complex survey
+    designs and produces unweighted simple indicator tables. Supports weighted
+    totals, proportions, standard errors, confidence intervals, coefficients
+    of variation, design effects, grouped and domain estimates, optional
+    stratification and clustering variables, and customizable exports to
+    '.xlsx' files.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US

@@ -48,13 +48,14 @@ clusters. If \code{NULL}, the design is treated as unclustered using \code{ids =
 fuera de \code{cfg$valid_values}; si es \code{FALSE}, los excluye con advertencia.}
 }
 \value{
-Objeto de clase \code{"svySE_result"}.
+Objeto de clase \code{"svySE_result"} que contiene exclusivamente
+estimaciones ponderadas y tablas de errores muestrales.
 }
 \description{
-Calcula errores muestrales para uno o mas indicadores usando un data.frame
-previamente cargado por el usuario.
+Calcula estimaciones ponderadas y errores muestrales para uno o mas
+indicadores usando un data.frame previamente cargado por el usuario.
 }
 \details{
-Calculates sampling errors for one or more indicators using a data.frame
-previously loaded by the user.
+Calculates weighted estimates and sampling errors for one or more indicators
+using a data.frame previously loaded by the user.
 }
