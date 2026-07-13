@@ -7,14 +7,21 @@ Authors@R:
         given = "Luis",
         family = "Burgos",
         email = "lburgoss1996@gmail.com",
-        role = c("aut", "cre")
+        role = c("aut", "cre"),
+        comment = c(
+            ORCID = "0009-0008-8290-4228"
+        )
     )
-Description: Estimates sampling errors for indicators from complex survey
-    designs and produces unweighted simple indicator tables. Supports weighted
-    totals, proportions, standard errors, confidence intervals, coefficients
-    of variation, design effects, grouped and domain estimates, optional
+Description: Estimates sampling errors and produces indicator tables for
+    complex survey data. Supports weighted totals, proportions, standard
+    errors, confidence intervals, coefficients of variation, design effects,
+    unweighted frequencies, grouped estimates, domain estimates, optional
     stratification and clustering variables, and customizable exports to
-    '.xlsx' files.
+    '.xlsx' files. Survey estimation is based on design-based inference using
+    Taylor series linearization implemented in the 'survey' package (Lumley,
+    2004, <doi:10.18637/jss.v009.i08>; Lumley, 2010,
+    ISBN:9780470284308). The package provides a reproducible workflow for
+    official statistics, household surveys, and applied survey research.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US
