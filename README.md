@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# svySE <a href="https://cran.r-project.org/package=svySE"><img src="man/figures/logo.png" align="right" height="200" alt="svySE logo" /></a>
+# svySE <img src="man/figures/logo.png" align="right" height="145" alt="svySE logo" />
 
 <!-- badges: start -->
 
