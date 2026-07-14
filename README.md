@@ -1,15 +1,17 @@
-<p align="center">
-  <img src="man/figures/logo.png" width="260" alt="svySE logo">
-</p>
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# svySE
+# svySE <a href="https://cran.r-project.org/package=svySE"><img src="man/figures/logo.png" align="right" height="200" alt="svySE logo" /></a>
+
+<!-- badges: start -->
 
 [![R-CMD-check](https://github.com/lburgoss/svySE/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/lburgoss/svySE/actions/workflows/R-CMD-check.yaml)
-[![CRAN status](https://www.r-pkg.org/badges/version/svySE)](https://CRAN.R-project.org/package=svySE)
+[![CRAN status](https://www.r-pkg.org/badges/version/svySE)](https://cran.r-project.org/package=svySE)
 [![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/svySE)](https://cran.r-project.org/package=svySE)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Sampling Error Estimation for Complex Surveys**
+<!-- badges: end -->
+
+## Sampling Error Estimation for Complex Surveys
 
 `svySE` is an R package for estimating sampling errors, producing descriptive indicator tables, and exporting structured results from complex survey data.
 
