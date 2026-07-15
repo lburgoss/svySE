@@ -17,12 +17,12 @@
 
 | Release channel | Version | Status |
 |-----------------|---------|--------|
-| CRAN | `0.2.0` | Stable |
-| GitHub | `0.2.1` | Development |
+| [CRAN](https://CRAN.R-project.org/package=svySE) | `0.2.0` | Stable |
+| [GitHub](https://github.com/lburgoss/svySE) | `0.2.1` | Development |
 
-> The CRAN release is the recommended version for regular use. The GitHub
-> development version may contain new features, improvements, and API changes
-> under active testing.
+> The CRAN release is recommended for regular use. The GitHub development
+> version may include new features and improvements that are still under
+> active testing.
 
 `svySE` is an R package for estimating sampling errors, producing descriptive indicator tables, and exporting structured results from complex survey data.
 
