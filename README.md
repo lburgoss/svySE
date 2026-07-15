@@ -650,7 +650,7 @@ svySE_xlsx(
 | `survey` | Design-based estimation, standard errors, confidence intervals, CV, and DEFF |
 | `openxlsx` | Creation and formatting of `.xlsx` workbooks |
 | `stats` | Statistical formulas, coefficients, and confidence intervals |
-| `svySE` | High-level workflow for survey indicators, errors, tables, and export |
+| `svySE` | Workflow for survey indicators, errors, tables, and export |
 
 `svySE` does not replace `survey`. It provides a structured interface for repeated indicator production and export workflows built on top of its design-based estimation capabilities.
 
