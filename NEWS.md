@@ -1,3 +1,23 @@
+# svySE 0.3.0
+
+## New features
+
+* Added the `na_rm` argument to `svySE_simple()` for explicit handling of
+  missing indicator values.
+* `svySE_simple()` now omits groups without valid indicator records when
+  `na_rm = TRUE`.
+* Added informative validation when missing indicator values are present and
+  `na_rm = FALSE`.
+
+## Improvements
+
+* Improved the handling of indicator-specific grouping structures in simple
+  tables.
+* Groups are now determined after filtering valid records for each indicator.
+* Expanded unit tests for missing values, empty indicator groups, and
+  `na_rm` validation.
+* Updated documentation and examples for simple indicator tables.
+
 # svySE 0.2.0
 
 ## New features

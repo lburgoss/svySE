@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Luis Burgos" />
+
+<meta name="date" content="2026-07-13" />
+
+<title>Basic Workflow with svySE</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Basic Workflow with svySE</h1>
+<h4 class="author">Luis Burgos</h4>
+<h4 class="date">2026-07-13</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction">Introduction</a></li>
+<li><a href="#package-workflow" id="toc-package-workflow">Package
+workflow</a></li>
+<li><a href="#example-data" id="toc-example-data">Example data</a></li>
+<li><a href="#configure-sampling-error-estimation" id="toc-configure-sampling-error-estimation">Configure sampling error
+estimation</a></li>
+<li><a href="#calculate-sampling-errors" id="toc-calculate-sampling-errors">Calculate sampling errors</a></li>
+<li><a href="#supported-survey-designs" id="toc-supported-survey-designs">Supported survey designs</a>
+<ul>
+<li><a href="#weight-only-design" id="toc-weight-only-design">Weight-only design</a></li>
+<li><a href="#stratified-design" id="toc-stratified-design">Stratified
+design</a></li>
+<li><a href="#clustered-design" id="toc-clustered-design">Clustered
+design</a></li>
+<li><a href="#stratified-and-clustered-design" id="toc-stratified-and-clustered-design">Stratified and clustered
+design</a></li>
+</ul></li>
+<li><a href="#domain-estimation" id="toc-domain-estimation">Domain
+estimation</a></li>
+<li><a href="#calculate-simple-indicator-tables" id="toc-calculate-simple-indicator-tables">Calculate simple indicator
+tables</a></li>
+<li><a href="#simple-tables-by-division" id="toc-simple-tables-by-division">Simple tables by division</a></li>
+<li><a href="#export-sampling-errors-to-xlsx" id="toc-export-sampling-errors-to-xlsx">Export sampling errors to
+XLSX</a></li>
+<li><a href="#export-simple-tables-to-xlsx" id="toc-export-simple-tables-to-xlsx">Export simple tables to
+XLSX</a></li>
+<li><a href="#export-multiple-analyses" id="toc-export-multiple-analyses">Export multiple analyses</a></li>
+<li><a href="#export-selected-results" id="toc-export-selected-results">Export selected results</a>
+<ul>
+<li><a href="#select-sampling-error-results" id="toc-select-sampling-error-results">Select sampling error
+results</a></li>
+<li><a href="#select-simple-results" id="toc-select-simple-results">Select simple results</a></li>
+</ul></li>
+<li><a href="#customize-exported-columns" id="toc-customize-exported-columns">Customize exported columns</a>
+<ul>
+<li><a href="#sampling-error-columns" id="toc-sampling-error-columns">Sampling error columns</a></li>
+<li><a href="#simple-table-columns" id="toc-simple-table-columns">Simple
+table columns</a></li>
+</ul></li>
+<li><a href="#main-functions" id="toc-main-functions">Main
+functions</a></li>
+<li><a href="#technical-foundation" id="toc-technical-foundation">Technical foundation</a></li>
+<li><a href="#summary" id="toc-summary">Summary</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p><code>svySE</code> provides a structured workflow for producing
+indicator tables from complex survey data.</p>
+<p>The package separates two complementary tasks:</p>
+<ol style="list-style-type: decimal">
+<li><code>svySE_calc()</code> calculates weighted estimates and sampling
+errors using sampling weights and, when available, strata and cluster
+variables.</li>
+<li><code>svySE_simple()</code> calculates unweighted frequencies and
+percentages from the observed sample without using the survey
+design.</li>
+</ol>
+<p>Results generated by either function can be exported to
+<code>.xlsx</code> files with <code>svySE_xlsx()</code>. The export
+function can process one result or consolidate several analyses
+generated from different datasets, indicators, weights, or function
+calls.</p>
+<p>The package is built on top of <code>survey</code> for design-based
+estimation and uses <code>openxlsx</code> for workbook generation.</p>
+</div>
+<div id="package-workflow" class="section level1">
+<h1>Package workflow</h1>
+<table>
+<colgroup>
+<col width="24%" />
+<col width="40%" />
+<col width="36%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>svySE_cfg()</code></td>
+<td>Configure estimation options</td>
+</tr>
+<tr class="even">
+<td>2A</td>
+<td><code>svySE_calc()</code></td>
+<td>Calculate weighted estimates and sampling errors</td>
+</tr>
+<tr class="odd">
+<td>2B</td>
+<td><code>svySE_simple()</code></td>
+<td>Calculate unweighted frequencies and percentages</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td><code>svySE_xlsx()</code></td>
+<td>Export one or multiple results to <code>.xlsx</code> files</td>
+</tr>
+</tbody>
+</table>
+<p>The two calculation functions are intentionally separated. This
+avoids performing unnecessary calculations when only sampling errors or
+only descriptive tables are required.</p>
+</div>
+<div id="example-data" class="section level1">
+<h1>Example data</h1>
+<p>The following simulated dataset contains:</p>
+<ul>
+<li>one grouping variable;</li>
+<li>one stratification variable;</li>
+<li>one cluster variable;</li>
+<li>one sampling weight;</li>
+<li>one division variable;</li>
+<li>two binary indicators.</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(svySE)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">dept =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>), <span class="at">each =</span> <span class="dv">50</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">strata =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>, <span class="st">&quot;S3&quot;</span>), <span class="at">each =</span> <span class="dv">50</span>),</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="fu">rep</span>(<span class="fu">seq_len</span>(<span class="dv">30</span>), <span class="at">each =</span> <span class="dv">5</span>),</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">service =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>), <span class="at">length.out =</span> <span class="dv">150</span>),</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">weight =</span> <span class="fu">runif</span>(<span class="dv">150</span>, <span class="dv">10</span>, <span class="dv">50</span>),</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="at">ind_1 =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="dv">150</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">ind_2 =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="dv">150</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="fu">head</span>(df)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">#&gt;   dept strata cluster service   weight ind_1 ind_2</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt; 1    A     S1       1      S1 21.50310     0     1</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co">#&gt; 2    A     S1       1      S2 41.53221     1     1</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">#&gt; 3    A     S1       1      S1 26.35908     0     0</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a><span class="co">#&gt; 4    A     S1       1      S2 45.32070     1     1</span></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co">#&gt; 5    A     S1       1      S1 47.61869     0     0</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">#&gt; 6    A     S1       2      S2 11.82226     0     0</span></span></code></pre></div>
+</div>
+<div id="configure-sampling-error-estimation" class="section level1">
+<h1>Configure sampling error estimation</h1>
+<p><code>svySE_cfg()</code> defines the settings used by
+<code>svySE_calc()</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>cfg <span class="ot">&lt;-</span> <span class="fu">svySE_cfg</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">estimator =</span> <span class="st">&quot;prop&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">variance =</span> <span class="st">&quot;taylor&quot;</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">lonely_psu =</span> <span class="st">&quot;adjust&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">conf_level =</span> <span class="fl">0.95</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">target =</span> <span class="dv">1</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">valid_values =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">truncate_lower_ci =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="at">pct_mult =</span> <span class="dv">100</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">deff =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="at">cv =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">na_rm =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>)</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>cfg</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; svySE configuration</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; --------------------------------------------------</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; Estimator          : prop </span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; Variance           : taylor </span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; Lonely PSU         : adjust </span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; Confidence level   : 0.95 </span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; Target value       : 1 </span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; Valid values       : 0, 1 </span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Truncate lower CI  : TRUE </span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; Percentage mult.   : 100 </span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; Include DEFF       : TRUE </span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; Include CV         : TRUE </span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; Remove NA          : TRUE</span></span></code></pre></div>
+<p>The principal options are:</p>
+<table>
+<colgroup>
+<col width="52%" />
+<col width="47%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>estimator</code></td>
+<td>Selects the estimator used in the analysis</td>
+</tr>
+<tr class="even">
+<td><code>variance</code></td>
+<td>Defines the variance estimation method</td>
+</tr>
+<tr class="odd">
+<td><code>lonely_psu</code></td>
+<td>Specifies how strata containing one PSU are handled</td>
+</tr>
+<tr class="even">
+<td><code>conf_level</code></td>
+<td>Defines the confidence level</td>
+</tr>
+<tr class="odd">
+<td><code>target</code></td>
+<td>Identifies the indicator category of interest</td>
+</tr>
+<tr class="even">
+<td><code>valid_values</code></td>
+<td>Defines the valid indicator values</td>
+</tr>
+<tr class="odd">
+<td><code>truncate_lower_ci</code></td>
+<td>Truncates negative lower confidence limits at zero</td>
+</tr>
+<tr class="even">
+<td><code>pct_mult</code></td>
+<td>Converts proportions to the selected percentage scale</td>
+</tr>
+<tr class="odd">
+<td><code>deff</code></td>
+<td>Enables or disables design-effect calculation</td>
+</tr>
+<tr class="even">
+<td><code>cv</code></td>
+<td>Enables or disables coefficient-of-variation calculation</td>
+</tr>
+<tr class="odd">
+<td><code>na_rm</code></td>
+<td>Controls the treatment of missing values</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="calculate-sampling-errors" class="section level1">
+<h1>Calculate sampling errors</h1>
+<p><code>svySE_calc()</code> calculates weighted estimates and measures
+of sampling precision.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>res_error <span class="ot">&lt;-</span> <span class="fu">svySE_calc</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="at">data =</span> df,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">indicators =</span> <span class="fu">c</span>(<span class="st">&quot;ind_1&quot;</span>, <span class="st">&quot;ind_2&quot;</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">group_vars =</span> <span class="st">&quot;dept&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">group_labels =</span> <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">strata =</span> <span class="st">&quot;strata&quot;</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="st">&quot;cluster&quot;</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">weight =</span> <span class="st">&quot;weight&quot;</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="at">division =</span> <span class="cn">NULL</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="at">div_weight =</span> <span class="cn">NULL</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="at">cfg =</span> cfg,</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>)</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>res_error</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; svySE sampling error result</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt; --------------------------------------------------</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; Indicators : ind_1, ind_2 </span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; Groups     : dept </span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; Strata     : strata </span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; Cluster    : cluster </span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; Weight     : weight </span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; Division   : NULL </span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; Estimator  : prop </span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; Target     : 1 </span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; Strict     : FALSE </span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt; Simple tab : No (use svySE_simple())</span></span></code></pre></div>
+<p>The returned object has class <code>&quot;svySE_result&quot;</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">class</span>(res_error)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;svySE_result&quot; &quot;list&quot;</span></span></code></pre></div>
+<p>Results are organized by indicator and division.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">names</span>(res_error<span class="sc">$</span>results)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;ind_1&quot; &quot;ind_2&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">names</span>(res_error<span class="sc">$</span>results<span class="sc">$</span>ind_1<span class="sc">$</span>error)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; [1] &quot;TOTAL&quot;</span></span></code></pre></div>
+<p>The national and grouped results for the first indicator can be
+inspected with:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>res_error<span class="sc">$</span>results<span class="sc">$</span>ind_1<span class="sc">$</span>error<span class="sc">$</span>TOTAL</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt;       dept   est_abs  est_pct   se_abs   se_pct  ci_l_abs ci_l_pct  ci_u_abs</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; 1 NACIONAL 2274.6821 50.26904 227.0537 4.182067 1829.6650 42.07234 2719.6992</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; 2        A  760.7571 49.39397 134.7782 7.768911  496.5967 34.16719 1024.9174</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; 3        B  933.1969 64.17897 109.2721 5.617541  719.0274 53.16879 1147.3664</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; 4        C  580.7282 37.93676 146.4508 8.122624  293.6899 22.01671  867.7664</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   ci_u_pct        cv      deff n_unw</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; 1 58.46574  8.319368 1.0781551    72</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 2 64.62076 15.728459 1.2665513    23</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; 3 75.18915  8.752931 0.6797495    30</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; 4 53.85680 21.410960 1.4608894    19</span></span></code></pre></div>
+<p>The sampling error table contains:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>est_abs</code></td>
+<td>Weighted absolute estimate</td>
+</tr>
+<tr class="even">
+<td><code>est_pct</code></td>
+<td>Weighted percentage estimate</td>
+</tr>
+<tr class="odd">
+<td><code>se_abs</code></td>
+<td>Standard error of the absolute estimate</td>
+</tr>
+<tr class="even">
+<td><code>se_pct</code></td>
+<td>Standard error of the percentage</td>
+</tr>
+<tr class="odd">
+<td><code>ci_l_abs</code></td>
+<td>Lower confidence limit for the absolute estimate</td>
+</tr>
+<tr class="even">
+<td><code>ci_l_pct</code></td>
+<td>Lower confidence limit for the percentage</td>
+</tr>
+<tr class="odd">
+<td><code>ci_u_abs</code></td>
+<td>Upper confidence limit for the absolute estimate</td>
+</tr>
+<tr class="even">
+<td><code>ci_u_pct</code></td>
+<td>Upper confidence limit for the percentage</td>
+</tr>
+<tr class="odd">
+<td><code>cv</code></td>
+<td>Coefficient of variation</td>
+</tr>
+<tr class="even">
+<td><code>deff</code></td>
+<td>Design effect</td>
+</tr>
+<tr class="odd">
+<td><code>n_unw</code></td>
+<td>Unweighted number of target cases</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="supported-survey-designs" class="section level1">
+<h1>Supported survey designs</h1>
+<p><code>svySE_calc()</code> can be used with different combinations of
+design variables.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Design</th>
+<th><code>strata</code></th>
+<th><code>cluster</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Weight only</td>
+<td><code>NULL</code></td>
+<td><code>NULL</code></td>
+</tr>
+<tr class="even">
+<td>Stratified</td>
+<td>Variable name</td>
+<td><code>NULL</code></td>
+</tr>
+<tr class="odd">
+<td>Clustered</td>
+<td><code>NULL</code></td>
+<td>Variable name</td>
+</tr>
+<tr class="even">
+<td>Stratified and clustered</td>
+<td>Variable name</td>
+<td>Variable name</td>
+</tr>
+</tbody>
+</table>
+<div id="weight-only-design" class="section level2">
+<h2>Weight-only design</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>res_weight <span class="ot">&lt;-</span> <span class="fu">svySE_calc</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">data =</span> df,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">indicators =</span> <span class="st">&quot;ind_1&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">group_vars =</span> <span class="st">&quot;dept&quot;</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">group_labels =</span> <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="at">strata =</span> <span class="cn">NULL</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="cn">NULL</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="at">weight =</span> <span class="st">&quot;weight&quot;</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="at">cfg =</span> cfg,</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>res_weight</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; svySE sampling error result</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; --------------------------------------------------</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; Indicators : ind_1 </span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; Groups     : dept </span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; Strata     : NULL </span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; Cluster    : NULL </span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; Weight     : weight </span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; Division   : NULL </span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; Estimator  : prop </span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; Target     : 1 </span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; Strict     : FALSE </span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; Simple tab : No (use svySE_simple())</span></span></code></pre></div>
+</div>
+<div id="stratified-design" class="section level2">
+<h2>Stratified design</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>res_strata <span class="ot">&lt;-</span> <span class="fu">svySE_calc</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">data =</span> df,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">indicators =</span> <span class="st">&quot;ind_1&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">group_vars =</span> <span class="st">&quot;dept&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">group_labels =</span> <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">strata =</span> <span class="st">&quot;strata&quot;</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="cn">NULL</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="at">weight =</span> <span class="st">&quot;weight&quot;</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="at">cfg =</span> cfg,</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>)</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>res_strata</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt; svySE sampling error result</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt; --------------------------------------------------</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt; Indicators : ind_1 </span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt; Groups     : dept </span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt; Strata     : strata </span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; Cluster    : NULL </span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; Weight     : weight </span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="co">#&gt; Division   : NULL </span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">#&gt; Estimator  : prop </span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co">#&gt; Target     : 1 </span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">#&gt; Strict     : FALSE </span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">#&gt; Simple tab : No (use svySE_simple())</span></span></code></pre></div>
+</div>
+<div id="clustered-design" class="section level2">
+<h2>Clustered design</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>res_cluster <span class="ot">&lt;-</span> <span class="fu">svySE_calc</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="at">data =</span> df,</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">indicators =</span> <span class="st">&quot;ind_1&quot;</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">group_vars =</span> <span class="st">&quot;dept&quot;</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="at">group_labels =</span> <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="at">strata =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="st">&quot;cluster&quot;</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">weight =</span> <span class="st">&quot;weight&quot;</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="at">cfg =</span> cfg,</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>)</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>res_cluster</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; svySE sampling error result</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; --------------------------------------------------</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; Indicators : ind_1 </span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; Groups     : dept </span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; Strata     : NULL </span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; Cluster    : cluster </span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; Weight     : weight </span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; Division   : NULL </span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="co">#&gt; Estimator  : prop </span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="co">#&gt; Target     : 1 </span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; Strict     : FALSE </span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co">#&gt; Simple tab : No (use svySE_simple())</span></span></code></pre></div>
+</div>
+<div id="stratified-and-clustered-design" class="section level2">
+<h2>Stratified and clustered design</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>res_complex <span class="ot">&lt;-</span> <span class="fu">svySE_calc</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="at">data =</span> df,</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">indicators =</span> <span class="st">&quot;ind_1&quot;</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">group_vars =</span> <span class="st">&quot;dept&quot;</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">group_labels =</span> <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">strata =</span> <span class="st">&quot;strata&quot;</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="st">&quot;cluster&quot;</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  <span class="at">weight =</span> <span class="st">&quot;weight&quot;</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="at">cfg =</span> cfg,</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>)</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>res_complex</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; svySE sampling error result</span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; --------------------------------------------------</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; Indicators : ind_1 </span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; Groups     : dept </span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; Strata     : strata </span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; Cluster    : cluster </span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; Weight     : weight </span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; Division   : NULL </span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; Estimator  : prop </span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt; Target     : 1 </span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; Strict     : FALSE </span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; Simple tab : No (use svySE_simple())</span></span></code></pre></div>
+</div>
+</div>
+<div id="domain-estimation" class="section level1">
+<h1>Domain estimation</h1>
+<p>The <code>division</code> argument generates separate results for
+each observed category of a division variable.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>res_domain <span class="ot">&lt;-</span> <span class="fu">svySE_calc</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="at">data =</span> df,</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">indicators =</span> <span class="st">&quot;ind_1&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">group_vars =</span> <span class="st">&quot;dept&quot;</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="at">group_labels =</span> <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="at">strata =</span> <span class="st">&quot;strata&quot;</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  <span class="at">cluster =</span> <span class="st">&quot;cluster&quot;</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="at">weight =</span> <span class="st">&quot;weight&quot;</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="at">division =</span> <span class="st">&quot;service&quot;</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>  <span class="at">div_weight =</span> <span class="cn">NULL</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  <span class="at">cfg =</span> cfg,</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>)</span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a><span class="fu">names</span>(res_domain<span class="sc">$</span>results<span class="sc">$</span>ind_1<span class="sc">$</span>error)</span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a><span class="co">#&gt; [1] &quot;TOTAL&quot; &quot;S1&quot;    &quot;S2&quot;</span></span></code></pre></div>
+<p>The <code>TOTAL</code> element contains the complete estimate, while
+the remaining elements contain the corresponding division results.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>res_domain<span class="sc">$</span>results<span class="sc">$</span>ind_1<span class="sc">$</span>error<span class="sc">$</span>S1</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co">#&gt;       dept   est_abs  est_pct    se_abs    se_pct ci_l_abs ci_l_pct  ci_u_abs</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co">#&gt; 1 NACIONAL 1135.5816 50.12187 158.81289  5.725684 824.3141 38.89974 1446.8492</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; 2        A  283.6570 38.83620  81.08334  9.105621 124.7366 20.98951  442.5775</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; 3        B  568.1100 72.84501 100.44052  9.339124 371.2502 54.54066  764.9698</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; 4        C  283.8146 37.57349  92.51339 10.743894 102.4917 16.51584  465.1376</span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt;   ci_u_pct       cv      deff n_unw</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co">#&gt; 1 61.34401 11.42352 1.0036189    35</span></span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; 2 56.68288 23.44622 0.8612027     9</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt; 3 91.14935 12.82054 1.1615982    17</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="co">#&gt; 4 58.63113 28.59435 1.2557022     9</span></span></code></pre></div>
+<p>When a division requires a different expansion factor, it can be
+provided through <code>div_weight</code>.</p>
+</div>
+<div id="calculate-simple-indicator-tables" class="section level1">
+<h1>Calculate simple indicator tables</h1>
+<p><code>svySE_simple()</code> calculates unweighted frequencies and
+percentages without requiring sampling weights, strata, or clusters.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>res_simple <span class="ot">&lt;-</span> <span class="fu">svySE_simple</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="at">data =</span> df,</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="at">indicators =</span> <span class="fu">c</span>(<span class="st">&quot;ind_1&quot;</span>, <span class="st">&quot;ind_2&quot;</span>),</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">group_vars =</span> <span class="st">&quot;dept&quot;</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">group_labels =</span> <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="at">division =</span> <span class="cn">NULL</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="at">target =</span> <span class="dv">1</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  <span class="at">valid_values =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>  <span class="at">pct_mult =</span> <span class="dv">100</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>)</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>res_simple</span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="co">#&gt; svySE simple result</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="co">#&gt; --------------------------------------------------</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="co">#&gt; Indicators : ind_1, ind_2 </span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="co">#&gt; Groups     : dept </span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="co">#&gt; Division   : NULL </span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="co">#&gt; Target     : 1 </span></span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt; Weighted   : No</span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; Warning    : Results describe the observed sample only.</span></span></code></pre></div>
+<p>The returned object has class <code>&quot;svySE_simple_result&quot;</code>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">class</span>(res_simple)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;svySE_simple_result&quot; &quot;list&quot;</span></span></code></pre></div>
+<p>A simple table can be inspected with:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>res_simple<span class="sc">$</span>results<span class="sc">$</span>ind_1<span class="sc">$</span>simple<span class="sc">$</span>TOTAL</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt;       dept freq_0 pct_0 freq_1 pct_1 freq_total pct_total</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; 1 NACIONAL     78    52     72    48        150       100</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&gt; 2        A     27    54     23    46         50       100</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; 3        B     20    40     30    60         50       100</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt; 4        C     31    62     19    38         50       100</span></span></code></pre></div>
+<p>The table contains:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>freq_0</code></td>
+<td>Frequency of non-target cases</td>
+</tr>
+<tr class="even">
+<td><code>pct_0</code></td>
+<td>Percentage of non-target cases</td>
+</tr>
+<tr class="odd">
+<td><code>freq_1</code></td>
+<td>Frequency of target cases</td>
+</tr>
+<tr class="even">
+<td><code>pct_1</code></td>
+<td>Percentage of target cases</td>
+</tr>
+<tr class="odd">
+<td><code>freq_total</code></td>
+<td>Total number of valid observations</td>
+</tr>
+<tr class="even">
+<td><code>pct_total</code></td>
+<td>Total percentage</td>
+</tr>
+</tbody>
+</table>
+<p>The results generated by <code>svySE_simple()</code> describe the
+observed sample only. Because no sampling weights or design variables
+are used, these percentages should not be interpreted as population
+estimates.</p>
+</div>
+<div id="simple-tables-by-division" class="section level1">
+<h1>Simple tables by division</h1>
+<p>A division variable can also be used with
+<code>svySE_simple()</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>res_simple_domain <span class="ot">&lt;-</span> <span class="fu">svySE_simple</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>  <span class="at">data =</span> df,</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>  <span class="at">indicators =</span> <span class="st">&quot;ind_1&quot;</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>  <span class="at">group_vars =</span> <span class="st">&quot;dept&quot;</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>  <span class="at">group_labels =</span> <span class="st">&quot;Department&quot;</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>  <span class="at">division =</span> <span class="st">&quot;service&quot;</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>  <span class="at">target =</span> <span class="dv">1</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a>  <span class="at">valid_values =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a>  <span class="at">pct_mult =</span> <span class="dv">100</span>,</span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a>)</span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="fu">names</span>(res_simple_domain<span class="sc">$</span>results<span class="sc">$</span>ind_1<span class="sc">$</span>simple)</span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">#&gt; [1] &quot;TOTAL&quot; &quot;S1&quot;    &quot;S2&quot;</span></span></code></pre></div>
+</div>
+<div id="export-sampling-errors-to-xlsx" class="section level1">
+<h1>Export sampling errors to XLSX</h1>
+<p>The following example writes a sampling error workbook to a temporary
+file.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>file_err <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>export_error <span class="ot">&lt;-</span> <span class="fu">svySE_xlsx</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="at">x =</span> res_error,</span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>  <span class="at">file_err =</span> file_err,</span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>  <span class="at">file_tab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>  <span class="at">cols_err =</span> <span class="fu">svySE_cols_err</span>(<span class="st">&quot;full&quot;</span>),</span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>)</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="fu">file.exists</span>(file_err)</span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div id="export-simple-tables-to-xlsx" class="section level1">
+<h1>Export simple tables to XLSX</h1>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>file_tab <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>export_simple <span class="ot">&lt;-</span> <span class="fu">svySE_xlsx</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>  <span class="at">x =</span> res_simple,</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>  <span class="at">file_err =</span> <span class="cn">NULL</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>  <span class="at">file_tab =</span> file_tab,</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>  <span class="at">cols_tab =</span> <span class="fu">svySE_cols_tab</span>(<span class="st">&quot;full&quot;</span>),</span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>)</span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a><span class="fu">file.exists</span>(file_tab)</span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div id="export-multiple-analyses" class="section level1">
+<h1>Export multiple analyses</h1>
+<p><code>svySE_xlsx()</code> can receive a named list containing several
+result objects.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>  <span class="at">Main_errors =</span> res_error,</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>  <span class="at">Domain_errors =</span> res_domain,</span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>  <span class="at">Main_simple =</span> res_simple,</span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>  <span class="at">Domain_simple =</span> res_simple_domain</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a>)</span></code></pre></div>
+<p>The function automatically identifies the class of each object:</p>
+<ul>
+<li><code>&quot;svySE_result&quot;</code> objects are exported to
+<code>file_err</code>;</li>
+<li><code>&quot;svySE_simple_result&quot;</code> objects are exported to
+<code>file_tab</code>.</li>
+</ul>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>multiple_err <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>multiple_tab <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>export_multiple <span class="ot">&lt;-</span> <span class="fu">svySE_xlsx</span>(</span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a>  <span class="at">x =</span> results,</span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a>  <span class="at">file_err =</span> multiple_err,</span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a>  <span class="at">file_tab =</span> multiple_tab,</span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a>  <span class="at">cols_err =</span> <span class="fu">svySE_cols_err</span>(<span class="st">&quot;full&quot;</span>),</span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a>  <span class="at">cols_tab =</span> <span class="fu">svySE_cols_tab</span>(<span class="st">&quot;full&quot;</span>),</span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a>)</span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="fu">file.exists</span>(multiple_err)</span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span>
+<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="fu">file.exists</span>(multiple_tab)</span>
+<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>This is useful when several indicators are calculated from different
+datasets, survey weights, domains, or analytical processes.</p>
+</div>
+<div id="export-selected-results" class="section level1">
+<h1>Export selected results</h1>
+<p>The <code>select</code> argument restricts the export to chosen
+elements of a named list.</p>
+<div id="select-sampling-error-results" class="section level2">
+<h2>Select sampling error results</h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>selected_err <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="fu">svySE_xlsx</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a>  <span class="at">x =</span> results,</span>
+<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a>  <span class="at">select =</span> <span class="fu">c</span>(<span class="st">&quot;Main_errors&quot;</span>, <span class="st">&quot;Domain_errors&quot;</span>),</span>
+<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a>  <span class="at">file_err =</span> selected_err,</span>
+<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a>  <span class="at">file_tab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a>)</span>
+<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a><span class="fu">file.exists</span>(selected_err)</span>
+<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div id="select-simple-results" class="section level2">
+<h2>Select simple results</h2>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>selected_tab <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="fu">svySE_xlsx</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>  <span class="at">x =</span> results,</span>
+<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>  <span class="at">select =</span> <span class="fu">c</span>(<span class="st">&quot;Main_simple&quot;</span>, <span class="st">&quot;Domain_simple&quot;</span>),</span>
+<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a>  <span class="at">file_err =</span> <span class="cn">NULL</span>,</span>
+<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a>  <span class="at">file_tab =</span> selected_tab,</span>
+<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a>)</span>
+<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a><span class="fu">file.exists</span>(selected_tab)</span>
+<span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+</div>
+<div id="customize-exported-columns" class="section level1">
+<h1>Customize exported columns</h1>
+<div id="sampling-error-columns" class="section level2">
+<h2>Sampling error columns</h2>
+<p>The complete set of sampling error columns can be requested with:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">svySE_cols_err</span>(<span class="st">&quot;full&quot;</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;est_abs&quot;  &quot;est_pct&quot;  &quot;se_abs&quot;   &quot;se_pct&quot;   &quot;ci_l_abs&quot; &quot;ci_l_pct&quot;</span></span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;ci_u_abs&quot; &quot;ci_u_pct&quot; &quot;cv&quot;       &quot;deff&quot;     &quot;n_unw&quot;</span></span></code></pre></div>
+<p>A custom selection can be defined with:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>error_columns <span class="ot">&lt;-</span> <span class="fu">svySE_cols_err</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;custom&quot;</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>  <span class="at">cols =</span> <span class="fu">c</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>    <span class="st">&quot;est_pct&quot;</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>    <span class="st">&quot;se_pct&quot;</span>,</span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>    <span class="st">&quot;ci_l_pct&quot;</span>,</span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>    <span class="st">&quot;ci_u_pct&quot;</span>,</span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a>    <span class="st">&quot;cv&quot;</span>,</span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a>    <span class="st">&quot;deff&quot;</span>,</span>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a>    <span class="st">&quot;n_unw&quot;</span></span>
+<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a>  )</span>
+<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a>)</span>
+<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a>error_columns</span>
+<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a><span class="co">#&gt; [1] &quot;est_pct&quot;  &quot;se_pct&quot;   &quot;ci_l_pct&quot; &quot;ci_u_pct&quot; &quot;cv&quot;       &quot;deff&quot;     &quot;n_unw&quot;</span></span></code></pre></div>
+<p>Use the custom selection during export:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a>custom_err <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="fu">svySE_xlsx</span>(</span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a>  <span class="at">x =</span> res_error,</span>
+<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a>  <span class="at">file_err =</span> custom_err,</span>
+<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a>  <span class="at">file_tab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a>  <span class="at">cols_err =</span> error_columns,</span>
+<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb25-9"><a href="#cb25-9" tabindex="-1"></a>)</span>
+<span id="cb25-10"><a href="#cb25-10" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" tabindex="-1"></a><span class="fu">file.exists</span>(custom_err)</span>
+<span id="cb25-12"><a href="#cb25-12" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div id="simple-table-columns" class="section level2">
+<h2>Simple table columns</h2>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="fu">svySE_cols_tab</span>(<span class="st">&quot;full&quot;</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;freq_0&quot;     &quot;pct_0&quot;      &quot;freq_1&quot;     &quot;pct_1&quot;      &quot;freq_total&quot;</span></span>
+<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a><span class="co">#&gt; [6] &quot;pct_total&quot;</span></span></code></pre></div>
+<p>A custom selection can be defined with:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>simple_columns <span class="ot">&lt;-</span> <span class="fu">svySE_cols_tab</span>(</span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">&quot;custom&quot;</span>,</span>
+<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>  <span class="at">cols =</span> <span class="fu">c</span>(</span>
+<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a>    <span class="st">&quot;freq_1&quot;</span>,</span>
+<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a>    <span class="st">&quot;pct_1&quot;</span>,</span>
+<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a>    <span class="st">&quot;freq_total&quot;</span></span>
+<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a>  )</span>
+<span id="cb27-8"><a href="#cb27-8" tabindex="-1"></a>)</span>
+<span id="cb27-9"><a href="#cb27-9" tabindex="-1"></a></span>
+<span id="cb27-10"><a href="#cb27-10" tabindex="-1"></a>simple_columns</span>
+<span id="cb27-11"><a href="#cb27-11" tabindex="-1"></a><span class="co">#&gt; [1] &quot;freq_1&quot;     &quot;pct_1&quot;      &quot;freq_total&quot;</span></span></code></pre></div>
+<p>Use the custom selection during export:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a>custom_tab <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a><span class="fu">svySE_xlsx</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a>  <span class="at">x =</span> res_simple,</span>
+<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a>  <span class="at">file_err =</span> <span class="cn">NULL</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a>  <span class="at">file_tab =</span> custom_tab,</span>
+<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a>  <span class="at">cols_tab =</span> simple_columns,</span>
+<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a>  <span class="at">overwrite =</span> <span class="cn">TRUE</span></span>
+<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a>)</span>
+<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" tabindex="-1"></a><span class="fu">file.exists</span>(custom_tab)</span>
+<span id="cb28-12"><a href="#cb28-12" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+</div>
+<div id="main-functions" class="section level1">
+<h1>Main functions</h1>
+<table>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>svySE_cfg()</code></td>
+<td>Configure sampling error estimation</td>
+</tr>
+<tr class="even">
+<td><code>svySE_calc()</code></td>
+<td>Calculate weighted estimates and sampling errors</td>
+</tr>
+<tr class="odd">
+<td><code>svySE_simple()</code></td>
+<td>Calculate unweighted frequencies and percentages</td>
+</tr>
+<tr class="even">
+<td><code>svySE_xlsx()</code></td>
+<td>Export one or multiple results to <code>.xlsx</code> files</td>
+</tr>
+<tr class="odd">
+<td><code>svySE_cols_err()</code></td>
+<td>Select sampling error columns</td>
+</tr>
+<tr class="even">
+<td><code>svySE_cols_tab()</code></td>
+<td>Select simple table columns</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="technical-foundation" class="section level1">
+<h1>Technical foundation</h1>
+<p><code>svySE</code> uses established R packages for its internal
+workflow.</p>
+<table>
+<colgroup>
+<col width="60%" />
+<col width="40%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Package</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>survey</code></td>
+<td>Design-based estimation and variance calculation</td>
+</tr>
+<tr class="even">
+<td><code>openxlsx</code></td>
+<td>Creation and formatting of <code>.xlsx</code> workbooks</td>
+</tr>
+<tr class="odd">
+<td><code>stats</code></td>
+<td>Statistical formulas, coefficients, and confidence intervals</td>
+</tr>
+<tr class="even">
+<td><code>svySE</code></td>
+<td>High-level workflow for indicators, sampling errors, tables, and
+export</td>
+</tr>
+</tbody>
+</table>
+<p><code>svySE</code> does not replace <code>survey</code>. It provides
+a structured interface for repeated indicator production, quality
+measurement, and export.</p>
+</div>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>This vignette demonstrated how to:</p>
+<ol style="list-style-type: decimal">
+<li>configure sampling error estimation with
+<code>svySE_cfg()</code>;</li>
+<li>calculate weighted estimates and sampling errors with
+<code>svySE_calc()</code>;</li>
+<li>work with weight-only, stratified, clustered, and combined
+designs;</li>
+<li>calculate domain estimates;</li>
+<li>generate unweighted descriptive tables with
+<code>svySE_simple()</code>;</li>
+<li>export sampling errors and simple tables separately;</li>
+<li>consolidate several analyses in one export process;</li>
+<li>select specific results before exporting;</li>
+<li>customize the columns included in <code>.xlsx</code> files.</li>
+</ol>
+<p>The same workflow can be applied to official survey datasets by
+specifying the corresponding indicators, grouping variables, weights,
+strata, and clusters.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

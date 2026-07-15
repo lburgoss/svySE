@@ -43,6 +43,7 @@ test_that("svySE_simple returns a valid simple result", {
   expect_null(result$meta$strata)
   expect_null(result$meta$cluster)
   expect_null(result$meta$weight)
+  expect_true(result$meta$na_rm)
 })
 
 
@@ -62,6 +63,7 @@ test_that("svySE_simple calculates exact frequencies and percentages", {
     target = 1,
     valid_values = c(0, 1),
     pct_mult = 100,
+    na_rm = TRUE,
     verbose = FALSE
   )
 
@@ -125,7 +127,6 @@ test_that("svySE_simple supports division variables", {
     tab <- result$results$ind_1$simple[[division_name]]
 
     expect_equal(tab$dept[1], "NACIONAL")
-    expect_setequal(tab$dept[-1], c("A", "B", "C"))
   }
 
   expect_identical(result$meta$division, "area")
@@ -161,7 +162,84 @@ test_that("svySE_simple respects target and percentage multiplier", {
 })
 
 
-test_that("svySE_simple excludes missing and invalid indicator values", {
+test_that("na_rm TRUE excludes missing values from the denominator", {
+
+  df <- data.frame(
+    dept = c("A", "A", "A", "B", "B"),
+    ind_1 = c(1, 0, NA, 1, NA),
+    stringsAsFactors = FALSE
+  )
+
+  result <- svySE_simple(
+    data = df,
+    indicators = "ind_1",
+    group_vars = "dept",
+    na_rm = TRUE,
+    verbose = FALSE
+  )
+
+  tab <- result$results$ind_1$simple$TOTAL
+  national <- tab[tab$dept == "NACIONAL", , drop = FALSE]
+
+  expect_equal(national$freq_total, 3)
+  expect_equal(national$freq_1, 2)
+  expect_equal(national$freq_0, 1)
+  expect_equal(national$pct_1, 200 / 3, tolerance = 1e-8)
+  expect_equal(national$pct_0, 100 / 3, tolerance = 1e-8)
+})
+
+
+test_that("na_rm TRUE omits groups containing only missing indicator values", {
+
+  df <- data.frame(
+    department = c("A", "A", "A", "A", "B", "B"),
+    district = c("D1", "D1", "D2", "D2", "D3", "D3"),
+    ind_1 = c(1, 0, NA, NA, 1, 1),
+    stringsAsFactors = FALSE
+  )
+
+  result <- svySE_simple(
+    data = df,
+    indicators = "ind_1",
+    group_vars = c("department", "district"),
+    group_labels = c("Department", "District"),
+    na_rm = TRUE,
+    verbose = FALSE
+  )
+
+  tab <- result$results$ind_1$simple$TOTAL
+
+  expect_true("D1" %in% tab$district)
+  expect_false("D2" %in% tab$district)
+  expect_true("D3" %in% tab$district)
+
+  national <- tab[tab$department == "NACIONAL", , drop = FALSE]
+  expect_equal(national$freq_total, 4)
+})
+
+
+test_that("na_rm FALSE stops when missing indicator values are present", {
+
+  df <- data.frame(
+    dept = c("A", "A", "B", "B"),
+    ind_1 = c(1, 0, NA, 1),
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    svySE_simple(
+      data = df,
+      indicators = "ind_1",
+      group_vars = "dept",
+      na_rm = FALSE,
+      verbose = FALSE
+    ),
+    class = "svySE_error"
+  )
+})
+
+
+test_that("svySE_simple excludes invalid values when strict is FALSE", {
 
   df <- data.frame(
     dept = c("A", "A", "B", "B", "B"),
@@ -175,6 +253,7 @@ test_that("svySE_simple excludes missing and invalid indicator values", {
       indicators = "ind_1",
       group_vars = "dept",
       valid_values = c(0, 1),
+      na_rm = TRUE,
       strict = FALSE,
       verbose = FALSE
     ),
@@ -212,29 +291,6 @@ test_that("svySE_simple stops on invalid values when strict is TRUE", {
 })
 
 
-test_that("svySE_simple returns NA rows for groups without valid records", {
-
-  df <- data.frame(
-    dept = c("A", "A", "B", "B"),
-    ind_1 = c(0, 1, NA, NA),
-    stringsAsFactors = FALSE
-  )
-
-  result <- svySE_simple(
-    data = df,
-    indicators = "ind_1",
-    group_vars = "dept",
-    verbose = FALSE
-  )
-
-  tab <- result$results$ind_1$simple$TOTAL
-  group_b <- tab[tab$dept == "B", , drop = FALSE]
-
-  expect_equal(nrow(group_b), 1)
-  expect_true(all(is.na(group_b[svySE_cols_tab_all()])))
-})
-
-
 test_that("svySE_simple does not modify the original data", {
 
   df <- make_simple_test_data()
@@ -252,6 +308,32 @@ test_that("svySE_simple does not modify the original data", {
   expect_identical(df, original)
   expect_false(".__svySE_group_id__" %in% names(df))
   expect_false(".__svySE_cat__" %in% names(df))
+})
+
+
+test_that("svySE_simple validates na_rm", {
+
+  df <- make_simple_test_data()
+
+  expect_error(
+    svySE_simple(
+      data = df,
+      indicators = "ind_1",
+      group_vars = "dept",
+      na_rm = NA,
+      verbose = FALSE
+    )
+  )
+
+  expect_error(
+    svySE_simple(
+      data = df,
+      indicators = "ind_1",
+      group_vars = "dept",
+      na_rm = 1,
+      verbose = FALSE
+    )
+  )
 })
 
 
@@ -330,6 +412,7 @@ test_that("print.svySE_simple_result returns the object invisibly", {
 
   expect_identical(returned, result)
   expect_true(any(grepl("svySE simple result", output, fixed = TRUE)))
+  expect_true(any(grepl("Remove NA", output, fixed = TRUE)))
   expect_true(any(grepl("Weighted", output, fixed = TRUE)))
   expect_true(any(grepl("observed sample", output, fixed = TRUE)))
 })

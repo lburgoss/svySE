@@ -310,59 +310,11 @@ res_simple <- svySE_simple(
   target = 1,
   valid_values = c(0, 1),
   pct_mult = 100,
-  na_rm = TRUE,
   verbose = FALSE
 )
 
 res_simple
 ```
-
-# Missing values in simple indicator tables
-
-`svySE_simple()` provides explicit control over missing indicator values through
-the `na_rm` argument.
-
-When `na_rm = TRUE`, missing values are removed before frequencies and
-percentages are calculated.
-
-```{r simple-missing-values}
-df_missing <- data.frame(
-  dept = c("A", "A", "B", "B", "C", "C"),
-  ind_1 = c(1, 0, NA, NA, 1, 1)
-)
-
-res_missing <- svySE_simple(
-  data = df_missing,
-  indicators = "ind_1",
-  group_vars = "dept",
-  group_labels = "Department",
-  na_rm = TRUE,
-  verbose = FALSE
-)
-
-res_missing$results$ind_1$simple$TOTAL
-```
-
-Department `B` is omitted because it does not contain any valid observations
-for `ind_1`.
-
-Missing observations are also excluded from the national denominator.
-
-When `na_rm = FALSE`, missing indicator values are treated as a validation
-condition and the calculation stops.
-
-```{r simple-missing-error, error=TRUE}
-svySE_simple(
-  data = df_missing,
-  indicators = "ind_1",
-  group_vars = "dept",
-  na_rm = FALSE,
-  verbose = FALSE
-)
-```
-
-This behavior makes the treatment of missing indicator values explicit and
-prevents missing observations from being silently included in the denominator.
 
 The returned object has class `"svySE_simple_result"`.
 

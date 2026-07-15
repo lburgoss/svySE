@@ -72,6 +72,7 @@ Although the package was developed from practical experience in survey sampling 
 - Unstratified designs
 - Unclustered designs
 - Unweighted simple indicator tables
+- Configurable missing-value handling in simple indicator tables
 - Flexible column selection
 - Consolidated export of multiple analyses
 - Selective export of chosen results
@@ -94,6 +95,10 @@ The two calculation functions have separate responsibilities:
 |----------|:------------:|:------------------:|-------------|
 | `svySE_calc()` | Yes | Yes | Weighted estimates and sampling errors |
 | `svySE_simple()` | No | No | Unweighted frequencies and percentages |
+
+Simple indicator tables also provide explicit control over missing indicator
+values through the `na_rm` argument. Missing values can be excluded from the
+calculation or treated as a validation condition that stops the analysis.
 
 This separation avoids redundant calculations and allows users to run only the workflow required for each analysis.
 
@@ -369,11 +374,34 @@ res_simple <- svySE_simple(
   target = 1,
   valid_values = c(0, 1),
   pct_mult = 100,
+  na_rm = TRUE,
   verbose = FALSE
 )
 
 res_simple
 ```
+By default, `na_rm = TRUE`. Missing indicator values are excluded from the
+denominator before frequencies and percentages are calculated.
+
+Groups containing no valid observations for a specific indicator are omitted
+from that indicator table.
+
+For example, if a district contains only missing values for `ind_1`, the
+district will not appear in the `ind_1` table. The same district may still
+appear for another indicator when valid observations are available.
+
+To require complete indicator data, use:
+
+```r
+svySE_simple(
+  data = df,
+  indicators = "ind_1",
+  group_vars = "dept",
+  na_rm = FALSE
+)
+
+```
+When `na_rm = FALSE`, the calculation stops if missing values are detected.
 
 A specific table can be inspected with:
 
