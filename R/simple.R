@@ -254,6 +254,10 @@ svySE_simple <- function(
       drop = FALSE
     ]
     
+    groups_master <- sort(
+      unique(data_ind$.__svySE_group_id__)
+    )
+    
     if (nrow(data_ind) == 0) {
       svySE_abort(
         title = "Indicador sin registros validos / Indicator without valid records.",
