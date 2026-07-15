@@ -13,6 +13,17 @@
 
 ## Sampling Error Estimation for Complex Surveys
 
+## Version Status
+
+| Release channel | Version | Status |
+|-----------------|---------|--------|
+| CRAN | `0.2.0` | Stable |
+| GitHub | `0.2.1` | Development |
+
+> The CRAN release is the recommended version for regular use. The GitHub
+> development version may contain new features, improvements, and API changes
+> under active testing.
+
 `svySE` is an R package for estimating sampling errors, producing descriptive indicator tables, and exporting structured results from complex survey data.
 
 The package provides two complementary workflows:
