@@ -438,7 +438,7 @@ export_simple <- svySE_xlsx(
   x = res_simple,
   file_err = NULL,
   file_tab = file_tab,
-  cols_tab = svySE_cols_tab("full"),
+  cols_tab = NULL,
   overwrite = TRUE
 )
 
@@ -472,7 +472,7 @@ export_multiple <- svySE_xlsx(
   file_err = multiple_err,
   file_tab = multiple_tab,
   cols_err = svySE_cols_err("full"),
-  cols_tab = svySE_cols_tab("full"),
+  cols_tab = NULL,
   overwrite = TRUE
 )
 
@@ -642,3 +642,60 @@ This vignette demonstrated how to:
 
 The same workflow can be applied to official survey datasets by specifying the
 corresponding indicators, grouping variables, weights, strata, and clusters.
+
+## Exporting simple-table column profiles
+
+When `cols_tab = NULL`, `svySE_xlsx()` exports all simple-table columns actually
+available in each result object:
+
+```{r, eval=FALSE}
+svySE_xlsx(
+  x = res_both,
+  file_tab = "simple_all.xlsx",
+  cols_tab = NULL
+)
+```
+
+Predefined profiles are available:
+
+```{r}
+svySE_cols_tab("unweighted")
+svySE_cols_tab("freq")
+svySE_cols_tab("pct")
+svySE_cols_tab("expanded")
+svySE_cols_tab("counts")
+```
+
+For example, export only sample and expanded counts:
+
+```{r, eval=FALSE}
+svySE_xlsx(
+  x = res_both,
+  file_tab = "simple_counts.xlsx",
+  cols_tab = svySE_cols_tab("counts")
+)
+```
+
+A fully custom selection is also supported:
+
+```{r, eval=FALSE}
+custom_columns <- svySE_cols_tab(
+  type = "custom",
+  cols = c(
+    "freq_1",
+    "exp_1",
+    "freq_total",
+    "exp_total"
+  )
+)
+
+svySE_xlsx(
+  x = res_both,
+  file_tab = "simple_custom.xlsx",
+  cols_tab = custom_columns
+)
+```
+
+The requested columns must exist in the calculated object. For example,
+expanded columns require `output = "weighted"` or `output = "both"`.
+

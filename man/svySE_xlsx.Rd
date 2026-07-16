@@ -10,7 +10,7 @@ svySE_xlsx(
   file_err = NULL,
   file_tab = NULL,
   cols_err = svySE_cols_err("full"),
-  cols_tab = svySE_cols_tab("full"),
+  cols_tab = NULL,
   start_row = 10,
   overwrite = TRUE,
   keep_na = FALSE
@@ -42,8 +42,13 @@ not exported.}
 \item{cols_err}{Columnas de error a exportar.
 Sampling error columns to export.}
 
-\item{cols_tab}{Columnas de tabla simple a exportar.
-Simple table columns to export.}
+\item{cols_tab}{Columnas de tabla simple a exportar. Si es \code{NULL}, se
+exportan todas las columnas disponibles en cada objeto simple. Puede
+utilizarse \code{svySE_cols_tab()} para seleccionar perfiles o columnas
+personalizadas.
+Simple table columns to export. If \code{NULL}, all columns available in each
+simple result are exported. Use \code{svySE_cols_tab()} to select profiles or
+custom columns.}
 
 \item{start_row}{Fila inicial de escritura.
 Starting row for writing.}

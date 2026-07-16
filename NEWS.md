@@ -1,22 +1,40 @@
-# svySE 0.3.0
+# svySE 0.2.1
 
 ## New features
 
+* Added optional weighted frequency tables to `svySE_simple()` through the
+  `weight` argument.
+* Added the `output` argument to `svySE_simple()` with three output modes:
+  `"unweighted"`, `"weighted"`, and `"both"`.
+* Added expanded frequency columns:
+  `exp_0`, `exp_1`, and `exp_total`.
+* Added new simple-table export profiles:
+  `"unweighted"`, `"expanded"`, and `"counts"` in `svySE_cols_tab()`.
+* Added automatic detection of available simple-table columns during XLSX
+  export when `cols_tab = NULL`.
 * Added the `na_rm` argument to `svySE_simple()` for explicit handling of
   missing indicator values.
-* `svySE_simple()` now omits groups without valid indicator records when
-  `na_rm = TRUE`.
-* Added informative validation when missing indicator values are present and
-  `na_rm = FALSE`.
 
 ## Improvements
 
 * Improved the handling of indicator-specific grouping structures in simple
   tables.
 * Groups are now determined after filtering valid records for each indicator.
-* Expanded unit tests for missing values, empty indicator groups, and
-  `na_rm` validation.
-* Updated documentation and examples for simple indicator tables.
+* `svySE_simple()` now omits groups without valid indicator records when
+  `na_rm = TRUE`.
+* Added informative validation when missing indicator values are present and
+  `na_rm = FALSE`.
+* Improved XLSX export so that only columns available in each simple-table
+  object are exported automatically.
+* Added informative validation when attempting to export columns that were not
+  calculated.
+* Optimized survey-design construction by avoiding unnecessary PSU nesting when
+  no cluster variable is supplied, substantially reducing computation time for
+  unclustered designs while preserving identical estimates.
+* Expanded unit tests covering weighted simple tables, output modes, automatic
+  export behavior, missing values, and grouping logic.
+* Updated documentation, README, vignettes, and examples for the new
+  `svySE_simple()` workflow.
 
 # svySE 0.2.0
 

@@ -8,7 +8,8 @@ svySE_cols_tab(type = "full", cols = NULL)
 }
 \arguments{
 \item{type}{Tipo de salida / Output type. Opciones:
-\code{"full"}, \code{"target"}, \code{"freq"}, \code{"pct"} o \code{"custom"}.}
+\code{"full"}, \code{"unweighted"}, \code{"target"}, \code{"freq"}, \code{"pct"},
+\code{"expanded"}, \code{"counts"} o \code{"custom"}.}
 
 \item{cols}{Vector de columnas cuando \code{type = "custom"}.}
 }
@@ -22,6 +23,11 @@ Selects columns to export the simple table.
 \examples{
 svySE_cols_tab("full")
 svySE_cols_tab("target")
-svySE_cols_tab("custom", cols = c("freq_1", "pct_1"))
+svySE_cols_tab("expanded")
+svySE_cols_tab("counts")
+svySE_cols_tab(
+  "custom",
+  cols = c("freq_1", "exp_1", "freq_total", "exp_total")
+)
 
 }

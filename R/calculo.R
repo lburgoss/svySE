@@ -928,7 +928,7 @@ svySE_design <- function(
     strata = strata_formula,
     weights = stats::reformulate(weight),
     data = data,
-    nest = TRUE
+    nest = !is.null(cluster)
   )
 }
 
