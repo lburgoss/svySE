@@ -5,13 +5,13 @@ bibentry(
   title = "svySE: Sampling Error Estimation for Complex Surveys",
   author = person("Luis", "Burgos"),
   year = "2026",
-  note = "R package version 0.3.0",
+  note = "R package version 0.2.1",
   doi = "10.32614/CRAN.package.svySE",
   url = "https://doi.org/10.32614/CRAN.package.svySE",
   textVersion = paste(
     "Burgos, L. (2026).",
     "svySE: Sampling Error Estimation for Complex Surveys.",
-    "R package version 0.3.0.",
+    "R package version 0.2.1.",
     "https://doi.org/10.32614/CRAN.package.svySE"
   )
 )
