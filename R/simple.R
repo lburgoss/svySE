@@ -35,7 +35,7 @@
 #' Con `output = "unweighted"` se calculan `freq_0`, `pct_0`, `freq_1`,
 #' `pct_1`, `freq_total` y `pct_total`.
 #'
-#' Con `output = "weighted"` se calculan `exp_0`, `exp_1` y `exp_total`.
+#' Con `output = "weighted"` se calculan `exp_0`, `exp_pct_0`, `exp_1`, `exp_pct_1`, `exp_total` y `exp_pct_total`.
 #' Con `output = "both"` se calculan ambos conjuntos de columnas.
 #'
 #' Los registros con peso perdido no aportan a las frecuencias expandidas,
@@ -58,9 +58,9 @@ svySE_simple <- function(
     verbose = TRUE,
     strict = FALSE
 ) {
-  
+
   output <- match.arg(output)
-  
+
   svySE_chk_df(data)
   svySE_chk_chr(indicators, "indicators")
   svySE_chk_chr(group_vars, "group_vars")
@@ -68,7 +68,7 @@ svySE_simple <- function(
   svySE_chk_bool(na_rm, "na_rm")
   svySE_chk_bool(verbose, "verbose")
   svySE_chk_bool(strict, "strict")
-  
+
   if (length(target) != 1 || is.na(target)) {
     svySE_abort(
       title = "Valor objetivo invalido / Invalid target value.",
@@ -76,7 +76,7 @@ svySE_simple <- function(
       vars = list(target = target)
     )
   }
-  
+
   if (length(valid_values) < 2 || any(is.na(valid_values))) {
     svySE_abort(
       title = "Valores validos incorrectos / Invalid valid values.",
@@ -87,7 +87,7 @@ svySE_simple <- function(
       vars = list(valid_values = valid_values)
     )
   }
-  
+
   if (!(target %in% valid_values)) {
     svySE_abort(
       title = "El valor objetivo no es valido / Target is not valid.",
@@ -95,13 +95,13 @@ svySE_simple <- function(
       vars = list(target = target, valid_values = valid_values)
     )
   }
-  
+
   if (
     !is.numeric(pct_mult) ||
-    length(pct_mult) != 1 ||
-    is.na(pct_mult) ||
-    !is.finite(pct_mult) ||
-    pct_mult <= 0
+      length(pct_mult) != 1 ||
+      is.na(pct_mult) ||
+      !is.finite(pct_mult) ||
+      pct_mult <= 0
   ) {
     svySE_abort(
       title = "Multiplicador de porcentaje invalido / Invalid percentage multiplier.",
@@ -109,10 +109,10 @@ svySE_simple <- function(
       vars = list(pct_mult = pct_mult)
     )
   }
-  
+
   if (!is.null(division)) {
     svySE_chk_chr(division, "division")
-    
+
     if (length(division) != 1) {
       svySE_abort(
         title = "Variable de division invalida / Invalid division variable.",
@@ -121,10 +121,10 @@ svySE_simple <- function(
       )
     }
   }
-  
+
   if (!is.null(weight)) {
     svySE_chk_chr(weight, "weight")
-    
+
     if (length(weight) != 1L) {
       svySE_abort(
         title = "Peso invalido / Invalid weight.",
@@ -133,7 +133,7 @@ svySE_simple <- function(
       )
     }
   }
-  
+
   if (output %in% c("weighted", "both") && is.null(weight)) {
     svySE_abort(
       title = paste(
@@ -150,18 +150,18 @@ svySE_simple <- function(
       )
     )
   }
-  
+
   svySE_chk_vars(data, indicators, "indicators")
   svySE_chk_vars(data, group_vars, "group_vars")
-  
+
   if (!is.null(division)) {
     svySE_chk_vars(data, division, "division")
   }
-  
+
   if (!is.null(weight)) {
     svySE_chk_vars(data, weight, "weight")
   }
-  
+
   if (length(group_labels) != length(group_vars)) {
     svySE_abort(
       title = "Etiquetas de grupo incompatibles / Incompatible group labels.",
@@ -172,29 +172,29 @@ svySE_simple <- function(
       vars = list(group_vars = group_vars, group_labels = group_labels)
     )
   }
-  
+
   svySE_chk_required_no_na(
     data = data,
     vars = group_vars,
     context = "variables de agrupacion / grouping variables"
   )
-  
+
   if (!is.null(division)) {
     svySE_warn_na_division(data, division)
   }
-  
+
   data <- as.data.frame(data)
-  
+
   if (!is.null(weight)) {
     data <- svySE_prepare_weight(
       data = data,
       weight = weight,
       arg = "weight"
     )
-    
+
     if (
       output %in% c("weighted", "both") &&
-      any(is.na(data[[weight]]))
+        any(is.na(data[[weight]]))
     ) {
       warning(
         paste0(
@@ -207,23 +207,23 @@ svySE_simple <- function(
       )
     }
   }
-  
+
   data$.__svySE_group_id__ <- do.call(
     paste,
     c(data[group_vars], sep = " | ")
   )
-  
+
   out <- list()
-  
+
   for (ind in indicators) {
-    
+
     if (isTRUE(verbose)) {
       message("Procesando tabla simple / Processing simple table: ", ind)
     }
-    
+
     x <- data[[ind]]
     n_missing <- sum(is.na(x))
-    
+
     if (!isTRUE(na_rm) && n_missing > 0) {
       svySE_abort(
         title = "Indicador con valores perdidos / Indicator contains missing values.",
@@ -239,21 +239,21 @@ svySE_simple <- function(
         )
       )
     }
-    
+
     invalid_values <- setdiff(
       unique(x[!is.na(x)]),
       valid_values
     )
-    
+
     if (length(invalid_values) > 0) {
-      
+
       msg <- paste0(
         "El indicador `", ind,
         "` contiene valores fuera de `valid_values`: ",
         paste(invalid_values, collapse = ", "),
         ". Estos registros seran excluidos."
       )
-      
+
       if (isTRUE(strict)) {
         svySE_abort(
           title = "Indicador con valores no permitidos / Indicator with invalid values.",
@@ -269,14 +269,14 @@ svySE_simple <- function(
         warning(msg, call. = FALSE)
       }
     }
-    
+
     data_ind <- data[
       data[[ind]] %in% valid_values &
         (isTRUE(na_rm) | !is.na(data[[ind]])),
       ,
       drop = FALSE
     ]
-    
+
     if (nrow(data_ind) == 0) {
       svySE_abort(
         title = "Indicador sin registros validos / Indicator without valid records.",
@@ -291,11 +291,11 @@ svySE_simple <- function(
         )
       )
     }
-    
+
     groups_master <- sort(
       unique(data_ind$.__svySE_group_id__)
     )
-    
+
     if (length(groups_master) == 0) {
       svySE_abort(
         title = "No se encontraron grupos validos / No valid groups found.",
@@ -306,25 +306,25 @@ svySE_simple <- function(
         vars = list(indicator = ind, group_vars = group_vars)
       )
     }
-    
+
     data_ind$.__svySE_cat__ <- ifelse(
       data_ind[[ind]] == target,
       1,
       0
     )
-    
+
     filters <- list(
       TOTAL = list(
         name = "TOTAL",
         data = data_ind
       )
     )
-    
+
     if (!is.null(division)) {
-      
+
       categories <- sort(unique(data_ind[[division]]))
       categories <- categories[!is.na(categories)]
-      
+
       if (length(categories) == 0) {
         svySE_abort(
           title = paste(
@@ -334,7 +334,7 @@ svySE_simple <- function(
           vars = list(division = division)
         )
       }
-      
+
       for (category in categories) {
         filters[[as.character(category)]] <- list(
           name = as.character(category),
@@ -346,12 +346,12 @@ svySE_simple <- function(
         )
       }
     }
-    
+
     simple_list <- list()
-    
+
     for (i in seq_along(filters)) {
       f <- filters[[i]]
-      
+
       simple_list[[f$name]] <- svySE_simple_one(
         data = f$data,
         group_vars = group_vars,
@@ -361,10 +361,10 @@ svySE_simple <- function(
         pct_mult = pct_mult
       )
     }
-    
+
     out[[ind]] <- list(simple = simple_list)
   }
-  
+
   result <- list(
     results = out,
     meta = list(
@@ -384,7 +384,7 @@ svySE_simple <- function(
       strict = strict
     )
   )
-  
+
   class(result) <- c("svySE_simple_result", "list")
   result
 }
@@ -398,9 +398,9 @@ svySE_simple <- function(
 svySE_simple_metric_names <- function(
     output = c("unweighted", "weighted", "both")
 ) {
-  
+
   output <- match.arg(output)
-  
+
   unweighted_cols <- c(
     "freq_0",
     "pct_0",
@@ -409,13 +409,16 @@ svySE_simple_metric_names <- function(
     "freq_total",
     "pct_total"
   )
-  
+
   weighted_cols <- c(
     "exp_0",
+    "exp_pct_0",
     "exp_1",
-    "exp_total"
+    "exp_pct_1",
+    "exp_total",
+    "exp_pct_total"
   )
-  
+
   switch(
     output,
     unweighted = unweighted_cols,
@@ -436,13 +439,13 @@ svySE_simple_metrics <- function(
     output = c("unweighted", "weighted", "both"),
     pct_mult = 100
 ) {
-  
+
   output <- match.arg(output)
-  
+
   n_total <- nrow(data)
   n_target <- sum(data$.__svySE_cat__ == 1, na.rm = TRUE)
   n_other <- sum(data$.__svySE_cat__ == 0, na.rm = TRUE)
-  
+
   unweighted_metrics <- data.frame(
     freq_0 = n_other,
     pct_0 = if (n_total > 0) n_other / n_total * pct_mult else NA_real_,
@@ -451,11 +454,11 @@ svySE_simple_metrics <- function(
     freq_total = n_total,
     pct_total = if (n_total > 0) pct_mult else NA_real_
   )
-  
+
   weighted_metrics <- NULL
-  
+
   if (output %in% c("weighted", "both")) {
-    
+
     if (is.null(weight)) {
       svySE_abort(
         title = paste(
@@ -464,29 +467,50 @@ svySE_simple_metrics <- function(
         )
       )
     }
-    
+
     valid_weight <- !is.na(data[[weight]])
-    
+
+    exp_0 <- sum(
+      data[[weight]][
+        data$.__svySE_cat__ == 0 & valid_weight
+      ],
+      na.rm = TRUE
+    )
+
+    exp_1 <- sum(
+      data[[weight]][
+        data$.__svySE_cat__ == 1 & valid_weight
+      ],
+      na.rm = TRUE
+    )
+
+    exp_total <- sum(
+      data[[weight]][valid_weight],
+      na.rm = TRUE
+    )
+
     weighted_metrics <- data.frame(
-      exp_0 = sum(
-        data[[weight]][
-          data$.__svySE_cat__ == 0 & valid_weight
-        ],
-        na.rm = TRUE
-      ),
-      exp_1 = sum(
-        data[[weight]][
-          data$.__svySE_cat__ == 1 & valid_weight
-        ],
-        na.rm = TRUE
-      ),
-      exp_total = sum(
-        data[[weight]][valid_weight],
-        na.rm = TRUE
-      )
+      exp_0 = exp_0,
+      exp_pct_0 = if (exp_total > 0) {
+        exp_0 / exp_total * pct_mult
+      } else {
+        NA_real_
+      },
+      exp_1 = exp_1,
+      exp_pct_1 = if (exp_total > 0) {
+        exp_1 / exp_total * pct_mult
+      } else {
+        NA_real_
+      },
+      exp_total = exp_total,
+      exp_pct_total = if (exp_total > 0) {
+        pct_mult
+      } else {
+        NA_real_
+      }
     )
   }
-  
+
   switch(
     output,
     unweighted = unweighted_metrics,
@@ -509,63 +533,63 @@ svySE_simple_one <- function(
     output = c("unweighted", "weighted", "both"),
     pct_mult = 100
 ) {
-  
+
   output <- match.arg(output)
   metric_names <- svySE_simple_metric_names(output)
-  
+
   out <- data.frame()
   groups_in_data <- sort(unique(data$.__svySE_group_id__))
-  
+
   for (g in groups_master) {
-    
+
     if (!(g %in% groups_in_data)) {
       row_na <- svySE_na_row(
         group_id = g,
         group_vars = group_vars,
         metric_names = metric_names
       )
-      
+
       out <- rbind(out, row_na)
       next
     }
-    
+
     group_data <- data[
       data$.__svySE_group_id__ == g,
       ,
       drop = FALSE
     ]
-    
+
     group_row <- group_data[1, group_vars, drop = FALSE]
-    
+
     metrics <- svySE_simple_metrics(
       data = group_data,
       weight = weight,
       output = output,
       pct_mult = pct_mult
     )
-    
+
     out <- rbind(out, cbind(group_row, metrics))
   }
-  
+
   total_group <- as.data.frame(
     as.list(rep("NACIONAL", length(group_vars))),
     stringsAsFactors = FALSE
   )
-  
+
   names(total_group) <- group_vars
-  
+
   total_metrics <- svySE_simple_metrics(
     data = data,
     weight = weight,
     output = output,
     pct_mult = pct_mult
   )
-  
+
   out <- rbind(
     cbind(total_group, total_metrics),
     out
   )
-  
+
   rownames(out) <- NULL
   out
 }
@@ -582,7 +606,7 @@ svySE_simple_one <- function(
 #' @return Invisiblemente `x`.
 #' @export
 print.svySE_simple_result <- function(x, ...) {
-  
+
   cat("svySE simple result\n")
   cat("--------------------------------------------------\n")
   cat("Indicators :", paste(x$meta$indicators, collapse = ", "), "\n")
@@ -600,21 +624,21 @@ print.svySE_simple_result <- function(x, ...) {
   cat("Output     :", x$meta$output, "\n")
   cat("Target     :", x$meta$target, "\n")
   cat("Remove NA  :", x$meta$na_rm, "\n")
-  
+
   if (identical(x$meta$output, "unweighted")) {
     cat("Weighted   : No\n")
     cat("Warning    : Results describe the observed sample only.\n")
   } else if (identical(x$meta$output, "weighted")) {
     cat("Weighted   : Yes\n")
-    cat("Warning    : Weighted frequencies use the specified weight.\n")
+    cat("Warning    : Weighted frequencies and percentages use the specified weight.\n")
   } else {
     cat("Weighted   : Both weighted and unweighted results\n")
     cat(
       "Warning    : Unweighted columns describe the observed sample; ",
-      "expanded columns use the specified weight.\n",
+      "expanded frequencies and percentages use the specified weight.\n",
       sep = ""
     )
   }
-  
+
   invisible(x)
 }

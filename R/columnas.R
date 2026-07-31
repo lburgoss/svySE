@@ -49,8 +49,11 @@ svySE_cols_tab_all <- function() {
     "freq_total",
     "pct_total",
     "exp_0",
+    "exp_pct_0",
     "exp_1",
-    "exp_total"
+    "exp_pct_1",
+    "exp_total",
+    "exp_pct_total"
   )
 }
 
@@ -158,7 +161,7 @@ svySE_cols_err <- function(
 #'
 #' @param type Tipo de salida / Output type. Opciones:
 #'   `"full"`, `"unweighted"`, `"target"`, `"freq"`, `"pct"`,
-#'   `"expanded"`, `"counts"` o `"custom"`.
+#'   `"expanded"`, `"expanded_freq"`, `"expanded_pct"`, `"counts"`, `"percentages"` o `"custom"`.
 #' @param cols Vector de columnas cuando `type = "custom"`.
 #'
 #' @return Vector de columnas seleccionadas / Selected column vector.
@@ -167,7 +170,10 @@ svySE_cols_err <- function(
 #' svySE_cols_tab("full")
 #' svySE_cols_tab("target")
 #' svySE_cols_tab("expanded")
+#' svySE_cols_tab("expanded_freq")
+#' svySE_cols_tab("expanded_pct")
 #' svySE_cols_tab("counts")
+#' svySE_cols_tab("percentages")
 #' svySE_cols_tab(
 #'   "custom",
 #'   cols = c("freq_1", "exp_1", "freq_total", "exp_total")
@@ -193,7 +199,10 @@ svySE_cols_tab <- function(
       "freq",
       "pct",
       "expanded",
+      "expanded_freq",
+      "expanded_pct",
       "counts",
+      "percentages",
       "custom"
     )
   )
@@ -207,9 +216,9 @@ svySE_cols_tab <- function(
   
   out <- switch(
     type,
-    
+
     full = all_cols,
-    
+
     unweighted = c(
       "freq_0",
       "pct_0",
@@ -218,32 +227,47 @@ svySE_cols_tab <- function(
       "freq_total",
       "pct_total"
     ),
-    
+
     target = c(
       "freq_1",
       "pct_1",
       "freq_total",
       "pct_total"
     ),
-    
+
     freq = c(
       "freq_0",
       "freq_1",
       "freq_total"
     ),
-    
+
     pct = c(
       "pct_0",
       "pct_1",
       "pct_total"
     ),
-    
+
     expanded = c(
+      "exp_0",
+      "exp_pct_0",
+      "exp_1",
+      "exp_pct_1",
+      "exp_total",
+      "exp_pct_total"
+    ),
+
+    expanded_freq = c(
       "exp_0",
       "exp_1",
       "exp_total"
     ),
-    
+
+    expanded_pct = c(
+      "exp_pct_0",
+      "exp_pct_1",
+      "exp_pct_total"
+    ),
+
     counts = c(
       "freq_0",
       "freq_1",
@@ -252,7 +276,16 @@ svySE_cols_tab <- function(
       "exp_1",
       "exp_total"
     ),
-    
+
+    percentages = c(
+      "pct_0",
+      "pct_1",
+      "pct_total",
+      "exp_pct_0",
+      "exp_pct_1",
+      "exp_pct_total"
+    ),
+
     custom = cols
   )
   

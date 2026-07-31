@@ -400,7 +400,7 @@ svySE_xlsx <- function(
           indicator = ind,
           cols = cols_tab
         )
-        
+
         svySE_write_tab_sheet(
           wb = wb_tab,
           sheet = sheet,
@@ -518,9 +518,9 @@ svySE_resolve_tab_cols <- function(
     indicator,
     cols = NULL
 ) {
-  
+
   result_ind <- obj$results[[indicator]]$simple
-  
+
   if (is.null(result_ind) || length(result_ind) == 0) {
     svySE_abort(
       title = "Tabla simple vacia / Empty simple table.",
@@ -531,22 +531,22 @@ svySE_resolve_tab_cols <- function(
       vars = list(indicator = indicator)
     )
   }
-  
+
   available_by_division <- lapply(
     result_ind,
     names
   )
-  
+
   available <- Reduce(
     intersect,
     available_by_division
   )
-  
+
   metric_available <- intersect(
     svySE_cols_tab_all(),
     available
   )
-  
+
   if (length(metric_available) == 0) {
     svySE_abort(
       title = paste(
@@ -559,24 +559,24 @@ svySE_resolve_tab_cols <- function(
       )
     )
   }
-  
+
   if (is.null(cols)) {
     return(metric_available)
   }
-  
+
   missing_cols <- setdiff(
     cols,
     metric_available
   )
-  
+
   if (length(missing_cols) > 0) {
-    
+
     output_type <- if (!is.null(obj$meta$output)) {
       obj$meta$output
     } else {
       "legacy/unweighted"
     }
-    
+
     svySE_abort(
       title = paste(
         "Columnas no disponibles en la tabla simple /",
@@ -599,7 +599,7 @@ svySE_resolve_tab_cols <- function(
       )
     )
   }
-  
+
   cols
 }
 
@@ -886,25 +886,37 @@ svySE_sublbl_err <- function(cols) {
 
 #' @keywords internal
 svySE_lbl_tab <- function(cols) {
-  
+
   top <- c(
     freq_0 = "0",
     pct_0 = "0",
     freq_1 = "1",
     pct_1 = "1",
     freq_total = "TOTAL",
-    pct_total = "TOTAL"
+    pct_total = "TOTAL",
+    exp_0 = "0",
+    exp_pct_0 = "0",
+    exp_1 = "1",
+    exp_pct_1 = "1",
+    exp_total = "TOTAL",
+    exp_pct_total = "TOTAL"
   )
-  
+
   low <- c(
-    freq_0 = "Abs.",
+    freq_0 = "Sin expandir",
     pct_0 = "%",
-    freq_1 = "Abs.",
+    freq_1 = "Sin expandir",
     pct_1 = "%",
-    freq_total = "Abs.",
-    pct_total = "%"
+    freq_total = "Sin expandir",
+    pct_total = "%",
+    exp_0 = "Expandido",
+    exp_pct_0 = "% expandido",
+    exp_1 = "Expandido",
+    exp_pct_1 = "% expandido",
+    exp_total = "Expandido",
+    exp_pct_total = "% expandido"
   )
-  
+
   data.frame(
     top = unname(top[cols]),
     low = unname(low[cols]),

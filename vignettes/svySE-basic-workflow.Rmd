@@ -663,7 +663,10 @@ svySE_cols_tab("unweighted")
 svySE_cols_tab("freq")
 svySE_cols_tab("pct")
 svySE_cols_tab("expanded")
+svySE_cols_tab("expanded_freq")
+svySE_cols_tab("expanded_pct")
 svySE_cols_tab("counts")
+svySE_cols_tab("percentages")
 ```
 
 For example, export only sample and expanded counts:
@@ -683,9 +686,12 @@ custom_columns <- svySE_cols_tab(
   type = "custom",
   cols = c(
     "freq_1",
+    "pct_1",
     "exp_1",
+    "exp_pct_1",
     "freq_total",
-    "exp_total"
+    "exp_total",
+    "exp_pct_total"
   )
 )
 

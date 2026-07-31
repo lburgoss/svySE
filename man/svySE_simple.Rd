@@ -66,7 +66,7 @@ sampling errors.
 Con \code{output = "unweighted"} se calculan \code{freq_0}, \code{pct_0}, \code{freq_1},
 \code{pct_1}, \code{freq_total} y \code{pct_total}.
 
-Con \code{output = "weighted"} se calculan \code{exp_0}, \code{exp_1} y \code{exp_total}.
+Con \code{output = "weighted"} se calculan \code{exp_0}, \code{exp_pct_0}, \code{exp_1}, \code{exp_pct_1}, \code{exp_total} y \code{exp_pct_total}.
 Con \code{output = "both"} se calculan ambos conjuntos de columnas.
 
 Los registros con peso perdido no aportan a las frecuencias expandidas,

@@ -1,12 +1,9 @@
 # ==============================================================================
-# Tests: seleccion de columnas
-# Tests: column selection
-# Archivo / File: tests/testthat/test-columnas.R
+# Tests for column selection helpers
 # ==============================================================================
 
-
 test_that("all simple table columns include weighted frequencies", {
-  
+
   expect_identical(
     svySE_cols_tab_all(),
     c(
@@ -17,20 +14,23 @@ test_that("all simple table columns include weighted frequencies", {
       "freq_total",
       "pct_total",
       "exp_0",
+      "exp_pct_0",
       "exp_1",
-      "exp_total"
+      "exp_pct_1",
+      "exp_total",
+      "exp_pct_total"
     )
   )
 })
 
 
 test_that("simple column profiles return the expected columns", {
-  
+
   expect_identical(
     svySE_cols_tab("full"),
     svySE_cols_tab_all()
   )
-  
+
   expect_identical(
     svySE_cols_tab("unweighted"),
     c(
@@ -42,7 +42,7 @@ test_that("simple column profiles return the expected columns", {
       "pct_total"
     )
   )
-  
+
   expect_identical(
     svySE_cols_tab("target"),
     c(
@@ -52,7 +52,7 @@ test_that("simple column profiles return the expected columns", {
       "pct_total"
     )
   )
-  
+
   expect_identical(
     svySE_cols_tab("freq"),
     c(
@@ -61,7 +61,7 @@ test_that("simple column profiles return the expected columns", {
       "freq_total"
     )
   )
-  
+
   expect_identical(
     svySE_cols_tab("pct"),
     c(
@@ -70,16 +70,37 @@ test_that("simple column profiles return the expected columns", {
       "pct_total"
     )
   )
-  
+
   expect_identical(
     svySE_cols_tab("expanded"),
+    c(
+      "exp_0",
+      "exp_pct_0",
+      "exp_1",
+      "exp_pct_1",
+      "exp_total",
+      "exp_pct_total"
+    )
+  )
+
+  expect_identical(
+    svySE_cols_tab("expanded_freq"),
     c(
       "exp_0",
       "exp_1",
       "exp_total"
     )
   )
-  
+
+  expect_identical(
+    svySE_cols_tab("expanded_pct"),
+    c(
+      "exp_pct_0",
+      "exp_pct_1",
+      "exp_pct_total"
+    )
+  )
+
   expect_identical(
     svySE_cols_tab("counts"),
     c(
@@ -91,11 +112,23 @@ test_that("simple column profiles return the expected columns", {
       "exp_total"
     )
   )
+
+  expect_identical(
+    svySE_cols_tab("percentages"),
+    c(
+      "pct_0",
+      "pct_1",
+      "pct_total",
+      "exp_pct_0",
+      "exp_pct_1",
+      "exp_pct_total"
+    )
+  )
 })
 
 
 test_that("custom simple columns preserve the requested order", {
-  
+
   selected <- svySE_cols_tab(
     type = "custom",
     cols = c(
@@ -105,7 +138,7 @@ test_that("custom simple columns preserve the requested order", {
       "exp_total"
     )
   )
-  
+
   expect_identical(
     selected,
     c(
@@ -119,12 +152,12 @@ test_that("custom simple columns preserve the requested order", {
 
 
 test_that("invalid simple column profiles and columns fail clearly", {
-  
+
   expect_error(
     svySE_cols_tab("unknown"),
     "arg"
   )
-  
+
   expect_error(
     svySE_cols_tab(
       type = "custom",
@@ -132,7 +165,7 @@ test_that("invalid simple column profiles and columns fail clearly", {
     ),
     "al menos una columna|at least one column"
   )
-  
+
   expect_error(
     svySE_cols_tab(
       type = "custom",
@@ -144,12 +177,12 @@ test_that("invalid simple column profiles and columns fail clearly", {
 
 
 test_that("sampling error column helpers remain unchanged", {
-  
+
   expect_identical(
     svySE_cols_err("full"),
     svySE_cols_err_all()
   )
-  
+
   expect_true(
     all(
       c(

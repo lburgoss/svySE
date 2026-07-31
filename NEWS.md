@@ -2,39 +2,39 @@
 
 ## New features
 
-* Added optional weighted frequency tables to `svySE_simple()` through the
-  `weight` argument.
-* Added the `output` argument to `svySE_simple()` with three output modes:
-  `"unweighted"`, `"weighted"`, and `"both"`.
-* Added expanded frequency columns:
-  `exp_0`, `exp_1`, and `exp_total`.
-* Added new simple-table export profiles:
-  `"unweighted"`, `"expanded"`, and `"counts"` in `svySE_cols_tab()`.
-* Added automatic detection of available simple-table columns during XLSX
-  export when `cols_tab = NULL`.
 * Added the `na_rm` argument to `svySE_simple()` for explicit handling of
   missing indicator values.
+* Added optional weighted simple tables through the `weight` argument in
+  `svySE_simple()`.
+* Added the `output` argument to `svySE_simple()` with the following modes:
+  `"unweighted"`, `"weighted"`, and `"both"`.
+* Added expanded frequency and weighted percentage columns:
+  `exp_0`, `exp_pct_0`, `exp_1`, `exp_pct_1`, `exp_total`, and
+  `exp_pct_total`.
+* Added new simple-table column profiles in `svySE_cols_tab()`:
+  `"unweighted"`, `"expanded"`, `"expanded_freq"`, `"expanded_pct"`,
+  `"counts"`, and `"percentages"`.
+* Added automatic detection of available simple-table columns during XLSX
+  export when `cols_tab = NULL`.
 
 ## Improvements
 
-* Improved the handling of indicator-specific grouping structures in simple
-  tables.
-* Groups are now determined after filtering valid records for each indicator.
 * `svySE_simple()` now omits groups without valid indicator records when
   `na_rm = TRUE`.
 * Added informative validation when missing indicator values are present and
   `na_rm = FALSE`.
-* Improved XLSX export so that only columns available in each simple-table
-  object are exported automatically.
-* Added informative validation when attempting to export columns that were not
-  calculated.
-* Optimized survey-design construction by avoiding unnecessary PSU nesting when
-  no cluster variable is supplied, substantially reducing computation time for
-  unclustered designs while preserving identical estimates.
-* Expanded unit tests covering weighted simple tables, output modes, automatic
-  export behavior, missing values, and grouping logic.
-* Updated documentation, README, vignettes, and examples for the new
-  `svySE_simple()` workflow.
+* Improved the handling of indicator-specific grouping structures in simple
+  tables.
+* Groups are now determined after filtering valid records for each indicator.
+* Added validation when requested XLSX columns are not available in the
+  calculated simple-table object.
+* Optimized survey-design construction by avoiding unnecessary PSU nesting
+  when no cluster variable is supplied. This substantially reduces computation
+  time for unclustered designs while preserving equivalent statistical
+  results.
+* Expanded unit tests for weighted frequencies, weighted percentages, output
+  modes, missing values, column profiles, and XLSX export.
+* Updated the README, vignette, documentation, and examples.
 
 # svySE 0.2.0
 

@@ -383,7 +383,7 @@ It supports three output modes:
 | `output` | Columns produced |
 |----------|------------------|
 | `"unweighted"` | `freq_0`, `pct_0`, `freq_1`, `pct_1`, `freq_total`, `pct_total` |
-| `"weighted"` | `exp_0`, `exp_1`, `exp_total` |
+| `"weighted"` | `exp_0`, `exp_pct_0`, `exp_1`, `exp_pct_1`, `exp_total`, `exp_pct_total` |
 | `"both"` | All unweighted and expanded columns |
 
 ### Unweighted frequencies and percentages
@@ -431,8 +431,11 @@ The result contains:
 | Column | Description |
 |--------|-------------|
 | `exp_0` | Expanded frequency for category 0 |
+| `exp_pct_0` | Weighted percentage for category 0 |
 | `exp_1` | Expanded frequency for category 1 |
+| `exp_pct_1` | Weighted percentage for category 1 |
 | `exp_total` | Expanded total of valid indicator records |
+| `exp_pct_total` | Total weighted percentage |
 
 ### Expanded and unexpanded counts together
 
@@ -644,7 +647,10 @@ svySE_cols_tab("target")
 svySE_cols_tab("freq")
 svySE_cols_tab("pct")
 svySE_cols_tab("expanded")
+svySE_cols_tab("expanded_freq")
+svySE_cols_tab("expanded_pct")
 svySE_cols_tab("counts")
+svySE_cols_tab("percentages")
 ```
 
 Export only sample and expanded counts:
@@ -665,9 +671,12 @@ simple_columns <- svySE_cols_tab(
   type = "custom",
   cols = c(
     "freq_1",
+    "pct_1",
     "exp_1",
+    "exp_pct_1",
     "freq_total",
-    "exp_total"
+    "exp_total",
+    "exp_pct_total"
   )
 )
 
