@@ -17,8 +17,7 @@
 
 | Release channel | Version | Status |
 |-----------------|---------|--------|
-| [CRAN](https://CRAN.R-project.org/package=svySE) | `0.2.0` | Stable |
-| [GitHub](https://github.com/lburgoss/svySE) | `0.2.1` | Development |
+| [GitHub](https://github.com/lburgoss/svySE) | `0.2.1` | Stable |
 
 > The CRAN release is recommended for regular use. The GitHub development
 > version may include new features and improvements that are still under
