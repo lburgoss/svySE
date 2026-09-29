@@ -23,6 +23,38 @@
 #' @param deff Si es `TRUE`, calcula efecto de diseno cuando sea posible.
 #' @param cv Si es `TRUE`, calcula coeficiente de variacion.
 #' @param na_rm Si es `TRUE`, remueve valores perdidos en operaciones auxiliares.
+#' @param ci_method Metodo para construir el intervalo de confianza de la
+#'   proporcion (`ci_l_pct`, `ci_u_pct`). Opciones:
+#'   * `"wald"` (por defecto): metodo historico de svySE,
+#'     `p +/- z * SE` con cuantil normal.
+#'   * `"xlogit"`: intervalo logit sobre el error estandar de Taylor, como
+#'     IBM SPSS Complex Samples y `survey::svyciprop(method = "xlogit")`.
+#'     Ver Details.
+#'
+#'   Solo aplica a `estimator = "prop"`. Los intervalos del total
+#'   (`ci_l_abs`, `ci_u_abs`) siempre usan el metodo `"wald"`.
+#' @param ci_df Grados de libertad para el valor critico del intervalo
+#'   `"xlogit"`. Si es `NULL` (por defecto), se usan los grados de libertad del
+#'   diseno, `survey::degf()` (numero de UPM menos numero de estratos). Un
+#'   valor numerico positivo los reemplaza; `Inf` usa el cuantil normal. No
+#'   afecta al metodo `"wald"`.
+#'
+#' @details
+#' Con `ci_method = "xlogit"`, la estimacion `p` y su error estandar `SE` son
+#' exactamente los que svySE ya calcula por linealizacion de Taylor (los de
+#' `est_pct` y `se_pct`). Solo cambia la construccion del intervalo:
+#'
+#' \deqn{\eta = \log(p / (1 - p)), \quad SE_\eta = SE / (p (1 - p))}
+#' \deqn{IC = expit(\eta \pm t_{1 - \alpha/2, gl} \cdot SE_\eta)}
+#'
+#' donde `gl` son los grados de libertad del diseno. Por construccion el
+#' intervalo queda dentro de `[0, 1]` y es complementario: el IC de `1 - p` es
+#' `[1 - sup, 1 - inf]`.
+#'
+#' Casos especiales: si `SE = 0` (lo que siempre ocurre cuando `p` es 0 o 1),
+#' el intervalo es degenerado, `[p, p]`, igual que con `"wald"`. Si `p` o
+#' `SE` son `NA`, o los grados de libertad no son positivos, los limites son
+#' `NA`.
 #'
 #' @return Lista de clase `"svySE_cfg"`.
 #'
@@ -31,6 +63,11 @@
 #'   estimator = "prop",
 #'   variance = "taylor",
 #'   target = 1
+#' )
+#'
+#' cfg_spss <- svySE_cfg(
+#'   estimator = "prop",
+#'   ci_method = "xlogit"
 #' )
 #'
 #' @export
@@ -45,7 +82,9 @@ svySE_cfg <- function(
     pct_mult = 100,
     deff = TRUE,
     cv = TRUE,
-    na_rm = TRUE
+    na_rm = TRUE,
+    ci_method = c("wald", "xlogit"),
+    ci_df = NULL
 ) {
   
   # ---------------------------------------------------------------------------
@@ -137,7 +176,26 @@ svySE_cfg <- function(
   svySE_chk_bool(deff, "deff")
   svySE_chk_bool(cv, "cv")
   svySE_chk_bool(na_rm, "na_rm")
-  
+
+  # ---------------------------------------------------------------------------
+  # Validar metodo de intervalo de confianza
+  # Validate confidence interval method
+  # ---------------------------------------------------------------------------
+
+  ci_method <- match.arg(ci_method)
+
+  if (ci_method == "xlogit" && estimator != "prop") {
+    stop("`ci_method = \"xlogit\"` solo aplica a `estimator = \"prop\"` / only applies to `estimator = \"prop\"`.",
+         call. = FALSE)
+  }
+
+  if (!is.null(ci_df)) {
+    if (!is.numeric(ci_df) || length(ci_df) != 1 || is.na(ci_df) || ci_df <= 0) {
+      stop("`ci_df` debe ser NULL o un numero positivo (Inf permitido) / must be NULL or a single positive number (Inf allowed).",
+           call. = FALSE)
+    }
+  }
+
   # ---------------------------------------------------------------------------
   # Aplicar configuracion global del paquete survey
   # Apply global survey package option
@@ -161,7 +219,9 @@ svySE_cfg <- function(
     pct_mult = pct_mult,
     deff = deff,
     cv = cv,
-    na_rm = na_rm
+    na_rm = na_rm,
+    ci_method = ci_method,
+    ci_df = ci_df
   )
   
   class(out) <- c("svySE_cfg", "list")
@@ -242,6 +302,11 @@ print.svySE_cfg <- function(x, ...) {
   cat("Include DEFF       :", x$deff, "\n")
   cat("Include CV         :", x$cv, "\n")
   cat("Remove NA          :", x$na_rm, "\n")
+  cat("CI method (prop)   :", if (is.null(x$ci_method)) "wald" else x$ci_method, "\n")
+
+  if (identical(x$ci_method, "xlogit")) {
+    cat("CI df              :", if (is.null(x$ci_df)) "design (survey::degf)" else x$ci_df, "\n")
+  }
   
   invisible(x)
 }
