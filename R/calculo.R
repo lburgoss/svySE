@@ -552,8 +552,8 @@ svySE_est_dom <- function(
     )
     
     ci_total <- stats::confint(total_obj, level = cfg$conf_level)
-    ci_prop  <- stats::confint(prop_obj, level = cfg$conf_level)
-    
+    ci_prop  <- svySE_ci_prop(prop_obj, design, cfg)
+
     return(
       svySE_metrics(
         est_abs = as.numeric(stats::coef(total_obj)[1]),
@@ -688,8 +688,8 @@ svySE_est_total <- function(
     )
     
     ci_total <- stats::confint(total_obj, level = cfg$conf_level)
-    ci_prop  <- stats::confint(prop_obj, level = cfg$conf_level)
-    
+    ci_prop  <- svySE_ci_prop(prop_obj, design, cfg)
+
     return(
       svySE_metrics(
         est_abs = as.numeric(stats::coef(total_obj)[1]),
@@ -1039,6 +1039,74 @@ svySE_metrics <- function(
     cv = as.numeric(cv),
     deff = as.numeric(deff),
     n_unw = as.numeric(n_unw)
+  )
+}
+
+
+# ==============================================================================
+# Intervalos de confianza de proporciones
+# Confidence intervals for proportions
+# ==============================================================================
+
+# Recibe el objeto de proporcion ya estimado (svyratio/svymean). Con "wald"
+# conserva exactamente el calculo historico; con "xlogit" reutiliza la misma
+# estimacion y el mismo SE de Taylor y solo cambia la escala del intervalo.
+
+#' @keywords internal
+svySE_ci_prop <- function(
+    prop_obj,
+    design,
+    cfg
+) {
+
+  if (!identical(cfg$ci_method, "xlogit")) {
+    return(stats::confint(prop_obj, level = cfg$conf_level))
+  }
+
+  df <- if (is.null(cfg$ci_df)) survey::degf(design) else cfg$ci_df
+
+  svySE_ci_xlogit(
+    p = as.numeric(stats::coef(prop_obj)[1]),
+    se = as.numeric(survey::SE(prop_obj)[1]),
+    level = cfg$conf_level,
+    df = df
+  )
+}
+
+
+# IC logit (xlogit) a partir de p y su SE de diseno (metodo delta):
+#   eta = logit(p), se_eta = se / (p * (1 - p)),
+#   IC = expit(eta -/+ qt(1 - alpha/2, df) * se_eta).
+# Si se = 0 (siempre ocurre en p = 0 o p = 1) el intervalo es [p, p].
+
+#' @keywords internal
+svySE_ci_xlogit <- function(
+    p,
+    se,
+    level,
+    df
+) {
+
+  if (
+    length(p) != 1 || length(se) != 1 || length(df) != 1 ||
+    is.na(p) || is.na(se) || is.na(df) ||
+    p < 0 || p > 1 || se < 0 || df <= 0
+  ) {
+    return(c(NA_real_, NA_real_))
+  }
+
+  if (se == 0 || p == 0 || p == 1) {
+    return(c(p, p))
+  }
+
+  q <- stats::qt(1 - (1 - level) / 2, df = df)
+
+  eta <- stats::qlogis(p)
+  se_eta <- se / (p * (1 - p))
+
+  c(
+    stats::plogis(eta - q * se_eta),
+    stats::plogis(eta + q * se_eta)
   )
 }
 
@@ -1663,6 +1731,7 @@ print.svySE_result <- function(x, ...) {
   cat("Division   :", ifelse(is.null(x$meta$division), "NULL", x$meta$division), "\n")
   cat("Estimator  :", x$meta$cfg$estimator, "\n")
   cat("Target     :", x$meta$cfg$target, "\n")
+  cat("CI method  :", if (is.null(x$meta$cfg$ci_method)) "wald" else x$meta$cfg$ci_method, "\n")
   cat("Strict     :", x$meta$strict, "\n")
   cat("Simple tab : No (use svySE_simple())\n")
   

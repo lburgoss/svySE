@@ -2,6 +2,16 @@
 
 ## New features
 
+* Added `ci_method` to `svySE_cfg()` for proportion confidence intervals:
+  `"wald"` (default, the historical interval, unchanged) or `"xlogit"`
+  (Taylor-linearization SE + logit-scale interval with a t critical value on
+  the design degrees of freedom, as in IBM SPSS Complex Samples and
+  `survey::svyciprop(method = "xlogit")`). Estimates, standard errors, CV,
+  DEFF, totals and counts are unaffected; only `ci_l_pct` and `ci_u_pct`
+  change.
+* Added `ci_df` to `svySE_cfg()` to override the design degrees of freedom
+  used by the `"xlogit"` interval (`NULL` = `survey::degf()`).
+
 * Added the `na_rm` argument to `svySE_simple()` for explicit handling of
   missing indicator values.
 * Added optional weighted simple tables through the `weight` argument in
