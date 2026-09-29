@@ -1,16 +1,38 @@
-# svySE 0.2.1
+# svySE 0.3.0
 
 ## New features
 
-* Added `ci_method` to `svySE_cfg()` for proportion confidence intervals:
-  `"wald"` (default, the historical interval, unchanged) or `"xlogit"`
-  (Taylor-linearization SE + logit-scale interval with a t critical value on
-  the design degrees of freedom, as in IBM SPSS Complex Samples and
-  `survey::svyciprop(method = "xlogit")`). Estimates, standard errors, CV,
-  DEFF, totals and counts are unaffected; only `ci_l_pct` and `ci_u_pct`
-  change.
-* Added `ci_df` to `svySE_cfg()` to override the design degrees of freedom
-  used by the `"xlogit"` interval (`NULL` = `survey::degf()`).
+* Added a second method for confidence intervals of proportions through the
+  new `ci_method` argument of `svySE_cfg()`:
+  * `"wald"` (default): the existing interval, `p +/- z * SE`. Results are
+    identical to previous versions.
+  * `"xlogit"`: the interval is built on the logit scale from the same
+    Taylor-linearization estimate and standard error, using a `t` critical
+    value with the design degrees of freedom, and transformed back to the
+    0-1 scale. Limits always stay within `[0, 1]` and intervals of
+    complementary categories are complementary. Equivalent to
+    `survey::svyciprop(method = "xlogit")`.
+* Added the `ci_df` argument to `svySE_cfg()` to set the degrees of freedom
+  used by the `"xlogit"` interval. The default (`NULL`) uses the design
+  degrees of freedom (`survey::degf()`: number of PSUs minus number of
+  strata); `Inf` uses the normal quantile.
+* `print()` methods for configurations and results now show the confidence
+  interval method.
+
+## Notes
+
+* Only the proportion limits (`ci_l_pct`, `ci_u_pct`) depend on `ci_method`.
+  Estimates, standard errors, coefficients of variation, design effects,
+  totals, counts, and the structure of results are unchanged.
+* `ci_method = "xlogit"` is only available for `estimator = "prop"`.
+* Added unit tests for the new interval method, special cases (proportions
+  equal to 0 or 1, zero standard errors, missing values, few degrees of
+  freedom), complementarity, and regression of the existing method.
+* Updated the README, vignette, documentation, and examples.
+
+# svySE 0.2.1
+
+## New features
 
 * Added the `na_rm` argument to `svySE_simple()` for explicit handling of
   missing indicator values.

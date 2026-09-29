@@ -17,7 +17,7 @@
 
 | Release channel | Version | Status |
 |-----------------|---------|--------|
-| [GitHub](https://github.com/lburgoss/svySE) | `0.2.1` | Stable |
+| [GitHub](https://github.com/lburgoss/svySE) | `0.3.0` | Stable |
 
 > The CRAN release is recommended for regular use. The GitHub development
 > version may include new features and improvements that are still under
@@ -72,6 +72,7 @@ Although the package was developed from practical experience in survey sampling 
 - Weighted proportions
 - Standard errors
 - Confidence intervals
+- Wald and logit (`xlogit`) confidence intervals for proportions
 - Coefficients of variation
 - Design effects
 - Unweighted sample sizes
@@ -189,7 +190,9 @@ cfg <- svySE_cfg(
   pct_mult = 100,
   deff = TRUE,
   cv = TRUE,
-  na_rm = TRUE
+  na_rm = TRUE,
+  ci_method = "wald",
+  ci_df = NULL
 )
 
 cfg
@@ -210,6 +213,8 @@ The most relevant options are:
 | `deff` | Whether design effects are calculated. |
 | `cv` | Whether coefficients of variation are calculated. |
 | `na_rm` | Whether missing values are removed during estimation. |
+| `ci_method` | Confidence interval method for proportions: `"wald"` (default) or `"xlogit"`. |
+| `ci_df` | Degrees of freedom for the `"xlogit"` interval. `NULL` uses the design degrees of freedom. |
 
 ---
 
@@ -262,6 +267,159 @@ The output may contain:
 | `cv` | Coefficient of variation |
 | `deff` | Design effect |
 | `n_unw` | Unweighted count of target cases |
+
+## Confidence Intervals for Proportions
+
+Starting with version 0.3.0, `svySE` offers two methods to build the
+confidence intervals of proportions (`ci_l_pct` and `ci_u_pct`). The method is
+selected with the `ci_method` argument of `svySE_cfg()`.
+
+| Method | `ci_method` | Interval | Critical value |
+|--------|-------------|----------|----------------|
+| Wald (default) | `"wald"` | `p ± z × SE` | Normal quantile |
+| Logit | `"xlogit"` | `expit(logit(p) ± t × SE / (p(1 − p)))` | `t` quantile with the design degrees of freedom |
+
+Both methods use exactly the same estimate and the same Taylor-linearization
+standard error. Only the construction of the interval changes: estimates,
+standard errors, coefficients of variation, design effects, totals, and counts
+are identical under both methods.
+
+The logit interval is computed in four steps:
+
+1. The proportion is transformed to the logit scale: `logit(p) = log(p / (1 − p))`.
+2. The standard error is transferred to that scale with the delta method: `SE_logit = SE / (p(1 − p))`.
+3. The limits are computed as `logit(p) ± t(1 − α/2, df) × SE_logit`.
+4. The limits are transformed back to the 0–1 scale with `expit(x) = 1 / (1 + exp(−x))`.
+
+Main properties of the logit interval:
+
+- limits always remain within `[0, 1]`, without truncation;
+- the interval is asymmetric around `p` when the proportion is close to 0 or 1;
+- intervals of complementary categories are complementary: the interval of `1 − p` is `[1 − upper, 1 − lower]`;
+- the critical value uses a `t` distribution with the design degrees of freedom (number of PSUs minus number of strata; without clusters, number of observations minus number of strata);
+- domains use the degrees of freedom of the full design, not those of the domain.
+
+The logit interval is recommended for small or large proportions and for
+domains with few cases, where the Wald interval may produce limits outside
+`[0, 1]`.
+
+### Use the logit interval
+
+```r
+cfg_xlogit <- svySE_cfg(
+  estimator = "prop",
+  ci_method = "xlogit"
+)
+
+res_xlogit <- svySE_calc(
+  data = df,
+  indicators = c("ind_1", "ind_2"),
+  group_vars = "dept",
+  group_labels = "Department",
+  strata = "strata",
+  cluster = "cluster",
+  weight = "weight",
+  cfg = cfg_xlogit,
+  verbose = FALSE
+)
+
+res_xlogit$results$ind_1$error$TOTAL
+```
+
+### Compare both methods
+
+```r
+wald <- res_error$results$ind_1$error$TOTAL
+xlogit <- res_xlogit$results$ind_1$error$TOTAL
+
+data.frame(
+  dept = wald$dept,
+  est_pct = wald$est_pct,
+  se_pct = wald$se_pct,
+  wald_lower = wald$ci_l_pct,
+  wald_upper = wald$ci_u_pct,
+  xlogit_lower = xlogit$ci_l_pct,
+  xlogit_upper = xlogit$ci_u_pct
+)
+```
+
+### Degrees of freedom
+
+By default (`ci_df = NULL`), the critical value uses the design degrees of
+freedom, which can be inspected with `survey::degf()`:
+
+```r
+design <- survey::svydesign(
+  ids = ~cluster,
+  strata = ~strata,
+  weights = ~weight,
+  data = df,
+  nest = TRUE
+)
+
+survey::degf(design)
+```
+
+The degrees of freedom can also be set explicitly with `ci_df`. Use
+`ci_df = Inf` to apply the normal quantile.
+
+```r
+cfg_xlogit_df <- svySE_cfg(
+  estimator = "prop",
+  ci_method = "xlogit",
+  ci_df = 30
+)
+
+cfg_xlogit_z <- svySE_cfg(
+  estimator = "prop",
+  ci_method = "xlogit",
+  ci_df = Inf
+)
+
+cfg_xlogit_df
+```
+
+When `division` is used, each division is estimated with its own survey design,
+so its degrees of freedom correspond to the records of that division. Use
+`ci_df` if a common value is required.
+
+### Complementary categories
+
+With the logit interval, the interval of the complementary category is obtained
+directly from the interval of the target category.
+
+```r
+res_0 <- svySE_calc(
+  data = df,
+  indicators = "ind_1",
+  group_vars = "dept",
+  strata = "strata",
+  cluster = "cluster",
+  weight = "weight",
+  cfg = svySE_cfg(estimator = "prop", target = 0, ci_method = "xlogit"),
+  verbose = FALSE
+)
+
+tab_1 <- res_xlogit$results$ind_1$error$TOTAL
+tab_0 <- res_0$results$ind_1$error$TOTAL
+
+all.equal(tab_0$ci_l_pct, 100 - tab_1$ci_u_pct)
+all.equal(tab_0$ci_u_pct, 100 - tab_1$ci_l_pct)
+```
+
+### Special cases
+
+| Situation | Logit interval |
+|-----------|----------------|
+| Proportion equal to 0 or 1 | Degenerate interval `[p, p]`, as with the Wald method |
+| Standard error equal to 0 | Degenerate interval `[p, p]` |
+| Missing estimate or standard error | `NA` limits |
+| Degrees of freedom not positive | `NA` limits |
+| Groups without observations | `NA` row, as with the Wald method |
+| `estimator` other than `"prop"` | Not available; `svySE_cfg()` returns an error |
+
+The confidence intervals of absolute estimates (`ci_l_abs`, `ci_u_abs`) always
+use the Wald method.
 
 ---
 
@@ -723,7 +881,7 @@ exported automatically.
 
 | Package | Role |
 |---------|------|
-| `survey` | Design-based estimation, standard errors, confidence intervals, CV, and DEFF |
+| `survey` | Design-based estimation, standard errors, confidence intervals, CV, DEFF, and design degrees of freedom |
 | `openxlsx` | Creation and formatting of `.xlsx` workbooks |
 | `stats` | Statistical formulas, coefficients, and confidence intervals |
 | `svySE` | Workflow for survey indicators, errors, tables, and export |
@@ -767,7 +925,12 @@ Open documentation for the principal functions:
 
 ## Development Status
 
-The current development version introduces:
+Version 0.3.0 introduces:
+
+- logit-transformed (`xlogit`) confidence intervals for proportions through `ci_method`;
+- configurable degrees of freedom for the interval critical value through `ci_df`.
+
+Version 0.2.1 introduced:
 
 - optional cluster variables;
 - support for unstratified and unclustered designs;

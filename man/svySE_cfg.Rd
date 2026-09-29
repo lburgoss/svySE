@@ -51,9 +51,10 @@ proporcion (\code{ci_l_pct}, \code{ci_u_pct}). Opciones:
 \itemize{
 \item \code{"wald"} (por defecto): metodo historico de svySE,
 \code{p +/- z * SE} con cuantil normal.
-\item \code{"xlogit"}: intervalo logit sobre el error estandar de Taylor, como
-IBM SPSS Complex Samples y \code{survey::svyciprop(method = "xlogit")}.
-Ver Details.
+\item \code{"xlogit"}: intervalo calculado en escala logit a partir de la misma
+estimacion y el mismo error estandar de Taylor, con valor critico \code{t}
+basado en los grados de libertad del diseno. Equivale a
+\code{survey::svyciprop(method = "xlogit")}. Ver Details.
 }
 
 Solo aplica a \code{estimator = "prop"}. Los intervalos del total
@@ -81,8 +82,15 @@ exactamente los que svySE ya calcula por linealizacion de Taylor (los de
 \deqn{IC = expit(\eta \pm t_{1 - \alpha/2, gl} \cdot SE_\eta)}
 
 donde \code{gl} son los grados de libertad del diseno. Por construccion el
-intervalo queda dentro de \verb{[0, 1]} y es complementario: el IC de \code{1 - p} es
-\verb{[1 - sup, 1 - inf]}.
+intervalo queda dentro de \verb{[0, 1]}, es asimetrico alrededor de \code{p} cuando
+la proporcion es cercana a 0 o 1, y es complementario: el IC de \code{1 - p} es
+\verb{[1 - sup, 1 - inf]}. En dominios se usan los grados de libertad del
+diseno completo.
+
+El metodo \code{"wald"} construye \code{p +/- z * SE} y puede producir limites fuera
+de \verb{[0, 1]} en proporciones pequenas (el inferior se trunca en 0 si
+\code{truncate_lower_ci = TRUE}). El metodo \code{"xlogit"} es preferible para
+proporciones extremas o dominios con pocos casos.
 
 Casos especiales: si \code{SE = 0} (lo que siempre ocurre cuando \code{p} es 0 o 1),
 el intervalo es degenerado, \verb{[p, p]}, igual que con \code{"wald"}. Si \code{p} o
@@ -96,9 +104,24 @@ cfg <- svySE_cfg(
   target = 1
 )
 
-cfg_spss <- svySE_cfg(
+# Intervalo logit con grados de libertad del diseno
+cfg_xlogit <- svySE_cfg(
   estimator = "prop",
   ci_method = "xlogit"
+)
+
+# Intervalo logit con grados de libertad fijados por el usuario
+cfg_xlogit_df <- svySE_cfg(
+  estimator = "prop",
+  ci_method = "xlogit",
+  ci_df = 30
+)
+
+# Intervalo logit con cuantil normal
+cfg_xlogit_z <- svySE_cfg(
+  estimator = "prop",
+  ci_method = "xlogit",
+  ci_df = Inf
 )
 
 }

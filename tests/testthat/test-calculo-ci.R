@@ -42,33 +42,34 @@ run_ci <- function(data, indicators, ci_method, target = 1, ...) {
 
 
 # ------------------------------------------------------------------------------
-# Referencia IBM SPSS Complex Samples
+# Valores de referencia externos
 # ------------------------------------------------------------------------------
 
-test_that("svySE_ci_xlogit reproduces the IBM SPSS Complex Samples reference", {
+test_that("svySE_ci_xlogit reproduces external reference values", {
 
-  # SPSS reporta p = 1/34 y su complemento 33/34, SE = 0.0167321.
-  spss <- list(
+  # Referencia: p = 1/34 y su complemento 33/34, SE = 0.0167321, IC 95%
+  # calculado con un diseno de aproximadamente 3000 grados de libertad.
+  ref <- list(
     p = c(0.0294118, 0.9705882),
     se = 0.0167321,
     lower = c(0.0095108, 0.9127153),
     upper = c(0.087284666, 0.990489152)
   )
 
-  # El valor critico implicito en SPSS (~1.9608) corresponde a una t con
-  # varios miles de gl de diseno; para cualquier gl >= 1000 la diferencia con
-  # SPSS es menor a 1e-4.
+  # El valor critico de la referencia (~1.9608) corresponde a una t con
+  # varios miles de gl de diseno; para cualquier gl >= 1000 la diferencia es
+  # menor a 1e-4.
   for (df in c(1000, 3000, Inf)) {
     for (i in 1:2) {
-      ci <- svySE_ci_xlogit(spss$p[i], spss$se, 0.95, df)
-      expect_lt(abs(ci[1] - spss$lower[i]), 1e-4)
-      expect_lt(abs(ci[2] - spss$upper[i]), 1e-4)
+      ci <- svySE_ci_xlogit(ref$p[i], ref$se, 0.95, df)
+      expect_lt(abs(ci[1] - ref$lower[i]), 1e-4)
+      expect_lt(abs(ci[2] - ref$upper[i]), 1e-4)
     }
   }
 
   # Con gl = 3000 la coincidencia es practicamente exacta.
-  ci <- svySE_ci_xlogit(1 / 34, spss$se, 0.95, 3000)
-  expect_lt(max(abs(ci - c(spss$lower[1], spss$upper[1]))), 1e-6)
+  ci <- svySE_ci_xlogit(1 / 34, ref$se, 0.95, 3000)
+  expect_lt(max(abs(ci - c(ref$lower[1], ref$upper[1]))), 1e-6)
 })
 
 
@@ -206,7 +207,7 @@ test_that("xlogit matches survey::svyciprop with the design degrees of freedom",
     tolerance = 1e-10
   )
 
-  # Dominios: SPSS y svySE usan los gl del diseno completo, no los del dominio.
+  # Dominios: se usan los gl del diseno completo, no los del dominio.
   for (g in c("A", "B", "C", "D")) {
     dom <- survey::svyciprop(
       ~I(ind_1 == 1),

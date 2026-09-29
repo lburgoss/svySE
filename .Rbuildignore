@@ -1,0 +1,13 @@
+^LICENSE\.md$
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^README\.Rmd$
+^README\.html$
+^cran-comments\.md$
+^\.git$
+^\.gitignore$
+^dev$
+^data-raw$
+^doc$
+^Meta$
